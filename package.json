@@ -1,0 +1,25 @@
+{
+  "name": "watermark-app-nuxt4",
+  "version": "1.0.0",
+  "description": "A web application for adding watermarks to images using Nuxt 4 and Nuxt UI",
+  "author": "Watermark App Team",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "nuxt": "^4.0.0",
+    "@nuxt/ui": "^2.14.0",
+    "@nuxtjs/tailwindcss": "^6.11.4",
+    "@nuxtjs/i18n": "^8.0.0",
+    "@nuxt/image": "^1.0.0",
+    "vue": "^3.4.0",
+    "@vueuse/core": "^10.7.0"
+  },
+  "devDependencies": {
+  }
+}

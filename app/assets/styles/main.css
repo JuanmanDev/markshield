@@ -1,0 +1,61 @@
+/* Main CSS file for watermark application */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+:root {
+  --primary-color: #3b82f6;
+  --secondary-color: #6b7280;
+  --success-color: #10b981;
+  --error-color: #ef4444;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Custom styles for watermark app */
+.watermark-app {
+  @apply min-h-screen;
+}
+
+.watermark-card {
+  @apply rounded-lg shadow-md overflow-hidden;
+}
+
+.watermark-preview {
+  @apply border rounded-lg overflow-hidden bg-gray-100;
+}
+
+.watermark-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.watermark-button {
+  @apply px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.watermark-button-primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+}
+
+.watermark-button-secondary {
+  @apply bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500;
+}
+
+.watermark-button-outline {
+  @apply border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500;
+}
+
+.watermark-slider {
+  @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer;
+}
+
+.watermark-slider::-webkit-slider-thumb {
+  @apply appearance-none h-4 w-4 rounded-full bg-blue-600 cursor-pointer;
+}
+
+.watermark-slider::-moz-range-thumb {
+  @apply h-4 w-4 rounded-full bg-blue-600 cursor-pointer border-0;
+}

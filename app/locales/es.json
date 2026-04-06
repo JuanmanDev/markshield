@@ -1,0 +1,53 @@
+{
+  "app": {
+    "title": "Herramienta de Marca de Agua",
+    "description": "Agrega marcas de agua personalizadas a tus imágenes"
+  },
+  "upload": {
+    "title": "Subir Imágenes",
+    "dragDrop": "Arrastra y suelta imágenes aquí",
+    "or": "o",
+    "select": "Seleccionar Archivos",
+    "preview": "Vista Previa de Imágenes",
+    "previewImage": "Vista previa de imagen",
+    "remove": "Remover imagen",
+    "paste": "Pegar del Portapapeles",
+    "clipboardInfo": "Pega imágenes directamente desde tu portapapeles"
+  },
+  "watermark": {
+    "title": "Configuración de Marca de Agua"
+  },
+  "config": {
+    "text": "Texto",
+    "textPlaceholder": "Ingresa el texto de la marca de agua",
+    "fontSize": "Tamaño de Fuente",
+    "color": "Color",
+    "opacity": "Opacidad",
+    "positionX": "Posición X",
+    "positionY": "Posición Y",
+    "apply": "Aplicar Marca de Agua"
+  },
+  "manager": {
+    "title": "Gestor de Marcas de Agua",
+    "edit": "Editar",
+    "remove": "Remover",
+    "fontSize": "Tamaño de Fuente",
+    "color": "Color"
+  },
+  "preview": {
+    "title": "Vista Previa",
+    "image": "Imagen",
+    "processing": "Procesando...",
+    "dimensions": "Dimensiones",
+    "empty": "No se han subido imágenes aún",
+    "upload": "Sube algunas imágenes para ver la vista previa",
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "reset": "Reiniciar Vista"
+  },
+  "actions": {
+    "apply": "Aplicar Marcas de Agua",
+    "download": "Descargar Imágenes",
+    "reset": "Reiniciar Todo"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "app": {
+    "title": "Image Watermarking Tool",
+    "description": "Add customizable text watermarks to your images"
+  },
+  "upload": {
+    "title": "Upload Images",
+    "dragDrop": "Drag and drop images here",
+    "or": "or",
+    "select": "Select Files",
+    "preview": "Image Preview",
+    "previewImage": "Preview image",
+    "remove": "Remove image",
+    "paste": "Paste from Clipboard",
+    "clipboardInfo": "Paste images directly from your clipboard"
+  },
+  "watermark": {
+    "title": "Watermark Settings"
+  },
+  "config": {
+    "text": "Text",
+    "textPlaceholder": "Enter watermark text",
+    "fontSize": "Font Size",
+    "color": "Color",
+    "opacity": "Opacity",
+    "positionX": "Position X",
+    "positionY": "Position Y",
+    "apply": "Apply Watermark"
+  },
+  "manager": {
+    "title": "Watermark Manager",
+    "edit": "Edit",
+    "remove": "Remove",
+    "fontSize": "Font Size",
+    "color": "Color"
+  },
+  "preview": {
+    "title": "Preview",
+    "image": "Image",
+    "processing": "Processing...",
+    "dimensions": "Dimensions",
+    "empty": "No images uploaded yet",
+    "upload": "Upload some images to see the preview",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "reset": "Reset View"
+  },
+  "actions": {
+    "apply": "Apply Watermarks",
+    "download": "Download Images",
+    "reset": "Reset All"
+  }
+}
