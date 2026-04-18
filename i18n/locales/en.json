@@ -1,0 +1,88 @@
+{
+  "app": {
+    "title": "MarkShield Watermark Studio",
+    "description": "Add customizable text watermarks to your images and documents"
+  },
+  "upload": {
+    "title": "Upload Files",
+    "dragDrop": "Drag and drop images or PDFs here",
+    "or": "or",
+    "select": "Select Files",
+    "preview": "Preview",
+    "previewImage": "Preview image",
+    "remove": "Remove file",
+    "paste": "Paste from Clipboard",
+    "clipboardInfo": "Paste files directly from your clipboard"
+  },
+  "watermark": {
+    "title": "Watermark Settings"
+  },
+  "config": {
+    "text": "Text",
+    "textPlaceholder": "Enter watermark text",
+    "fontSize": "Font Size",
+    "rotation": "Rotation",
+    "color": "Color",
+    "textColor": "Text Color",
+    "opacity": "Opacity",
+    "positionX": "Position X",
+    "positionY": "Position Y",
+    "apply": "Add to List",
+    "gradientStart": "Start Color",
+    "gradientEnd": "EndColor",
+    "gradientAngle": "GradientAngle",
+    "randomColorRange": "Color Range",
+    "randomOpacity": "Opacity Range",
+    "background": "Background",
+    "backgroundColor": "Color",
+    "backgroundOpacity": "Opacity",
+    "backgroundPadding": "Padding",
+    "backgroundRadius": "Corner Radius",
+    "border": "Border",
+    "borderColor": "Color",
+    "borderWidth": "Width",
+    "borderOpacity": "Opacity",
+    "borderStyle": "Style",
+    "borderRadius": "Corner Radius",
+    "repeat": "Repeat Pattern",
+    "patternSpacingX": "HorizontalSpacing",
+    "patternSpacingY": "VerticalSpacing",
+    "patternOffset": "Line Offset",
+    "patternRandomOffset": "Random Offset"
+  },
+  "manager": {
+    "title": "Watermark Manager",
+    "edit": "Edit",
+    "remove": "Remove",
+    "fontSize": "Font Size",
+    "color": "Color",
+    "add": "Add Watermark",
+    "applyAll": "Apply to All",
+    "empty": "No watermarks added yet"
+  },
+  "preview": {
+    "title": "Preview",
+    "image": "Image",
+    "processing": "Processing...",
+    "dimensions": "Dimensions",
+    "empty": "No files uploaded yet",
+    "upload": "Click to upload images or PDFs",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "reset": "Reset View"
+  },
+  "actions": {
+    "apply": "Apply Watermarks",
+    "download": "Download",
+    "reset": "Reset All",
+    "getStarted": "Get Started",
+    "batchProcess": "Batch Process"
+  },
+  "suggestions": {
+    "confidential_desc": "Bold red watermark for sensitive documents",
+    "tiled_desc": "Repeated pattern across entire image",
+    "identity_desc": "Medium visibility for ID verification",
+    "brand_desc": "Subtle studio signature for artwork",
+    "draft_desc": "Light gray marker for drafts"
+  }
+}

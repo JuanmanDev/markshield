@@ -17,7 +17,33 @@ export function useWatermark() {
     color: '#ffffff',
     opacity: 0.7,
     x: 50,
-    y: 50
+    y: 50,
+    pattern: false,
+    // New properties
+    rotation: 0,
+    colorMode: 'solid',
+    gradientStart: '#667eea',
+    gradientEnd: '#764ba2',
+    gradientAngle: 45,
+    randomColorMin: '#667eea',
+    randomColorMax: '#764ba2',
+    randomOpacityMin: 0.3,
+    randomOpacityMax: 0.8,
+    bgEnabled: false,
+    bgColor: '#000000',
+    bgOpacity: 0.5,
+    bgPadding: 10,
+    bgRadius: 5,
+    borderEnabled: false,
+    borderColor: '#ffffff',
+    borderWidth: 2,
+    borderOpacity: 1,
+    borderStyle: 'solid',
+    borderRadius: 0,
+    patternSpacingX: 150,
+    patternSpacingY: 100,
+    patternOffset: 0,
+    patternRandomOffset: false
   })
   
   // Processing state
@@ -53,11 +79,6 @@ export function useWatermark() {
       // For now, we'll just simulate the process
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      // Here you would typically:
-      // 1. Load each image
-      // 2. Apply watermarks using imageProcessor.js
-      // 3. Export the result
-      
       console.log('Watermarks applied to images')
     } catch (error) {
       console.error('Error applying watermarks:', error)
@@ -82,7 +103,32 @@ export function useWatermark() {
       color: '#ffffff',
       opacity: 0.7,
       x: 50,
-      y: 50
+      y: 50,
+      pattern: false,
+      rotation: 0,
+      colorMode: 'solid',
+      gradientStart: '#667eea',
+      gradientEnd: '#764ba2',
+      gradientAngle: 45,
+      randomColorMin: '#667eea',
+      randomColorMax: '#764ba2',
+      randomOpacityMin: 0.3,
+      randomOpacityMax: 0.8,
+      bgEnabled: false,
+      bgColor: '#000000',
+      bgOpacity: 0.5,
+      bgPadding: 10,
+      bgRadius: 5,
+      borderEnabled: false,
+      borderColor: '#ffffff',
+      borderWidth: 2,
+      borderOpacity: 1,
+      borderStyle: 'solid',
+      borderRadius: 0,
+      patternSpacingX: 150,
+      patternSpacingY: 100,
+      patternOffset: 0,
+      patternRandomOffset: false
     })
     isProcessing.value = false
   }

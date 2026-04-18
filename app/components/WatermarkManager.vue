@@ -1,65 +1,63 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-6">
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-2 mb-4">
+      <button 
+        @click="addWatermark"
+        class="flex-1 py-2.5 rounded-lg bg-surface-container hover:bg-white/5 border border-white/5 text-on-surface text-xs font-bold transition-all flex items-center justify-center gap-2 group"
+      >
+        <span class="material-symbols-outlined text-[16px] group-hover:-translate-y-0.5 transition-transform">add</span>
+        {{ t('manager.add') }}
+      </button>
+      <button 
+        @click="applyWatermarks"
+        :disabled="watermarks.length === 0"
+        class="flex-1 py-2.5 rounded-lg border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+      >
+        <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform">autorenew</span>
+        {{ t('manager.applyAll') }}
+      </button>
+    </div>
+
     <!-- Watermark List -->
     <div v-if="watermarks.length > 0" class="space-y-3">
       <div 
         v-for="(watermark, index) in watermarks" 
         :key="index"
-        class="border rounded-lg p-3 bg-gray-50"
+        class="border border-white/5 rounded-xl p-4 bg-surface-container-low transition-all hover:border-white/10"
       >
-        <div class="flex justify-between items-center">
-          <div class="font-medium">{{ watermark.text }}</div>
-          <div class="flex space-x-2">
-            <UButton 
-              color="secondary" 
-              variant="ghost" 
-              size="sm"
+        <div class="flex justify-between items-start mb-2">
+          <div class="font-bold text-sm text-on-surface truncate pr-4">{{ watermark.text }}</div>
+          <div class="flex space-x-1 shrink-0">
+            <button 
               @click="editWatermark(index)"
+              class="w-6 h-6 flex items-center justify-center rounded-md hover:bg-white/10 text-on-surface-variant hover:text-primary transition-colors"
+              title="Edit"
             >
-              {{ t('manager.edit') }}
-            </UButton>
-            <UButton 
-              color="error" 
-              variant="ghost" 
-              size="sm"
+              <span class="material-symbols-outlined text-[14px]">edit</span>
+            </button>
+            <button 
               @click="removeWatermark(index)"
+               class="w-6 h-6 flex items-center justify-center rounded-md hover:bg-error/20 text-on-surface-variant hover:text-error transition-colors"
+               title="Remove"
             >
-              {{ t('manager.remove') }}
-            </UButton>
+              <span class="material-symbols-outlined text-[14px]">delete</span>
+            </button>
           </div>
         </div>
-        <div class="text-sm text-gray-600 mt-1">
-          {{ t('manager.fontSize') }}: {{ watermark.fontSize }}px | 
-          {{ t('manager.color') }}: {{ watermark.color }} | 
-          {{ t('manager.opacity') }}: {{ Math.round(watermark.opacity * 100) }}%
+        <div class="flex gap-3 text-[10px] font-medium text-outline uppercase tracking-wider">
+          <span>{{ watermark.fontSize }}px</span>
+          <span>&bull;</span>
+          <span>{{ watermark.color }}</span>
+          <span>&bull;</span>
+          <span>{{ Math.round(watermark.opacity * 100) }}% Opacity</span>
         </div>
       </div>
     </div>
 
     <!-- Empty State -->
-    <div v-else class="text-center py-8 text-gray-500">
+    <div v-else class="text-center py-6 text-on-surface-variant text-sm border border-dashed border-white/10 rounded-xl">
       {{ t('manager.empty') }}
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="flex space-x-2 pt-2">
-      <UButton 
-        color="primary" 
-        variant="solid" 
-        @click="addWatermark"
-        class="flex-1"
-      >
-        {{ t('manager.add') }}
-      </UButton>
-      <UButton 
-        color="secondary" 
-        variant="outline" 
-        @click="applyWatermarks"
-        :disabled="watermarks.length === 0"
-        class="flex-1"
-      >
-        {{ t('manager.applyAll') }}
-      </UButton>
     </div>
   </div>
 </template>

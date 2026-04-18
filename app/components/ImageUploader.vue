@@ -1,73 +1,72 @@
 <template>
-  <div class="space-y-4">
-    <!-- File Upload -->
+  <section class="h-56 bg-surface-container-low/30 backdrop-blur-md border-t border-white/5 flex flex-col">
+    <!-- Drag and Drop Zone -->
     <div 
-      class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 transition-colors"
+      class="px-8 py-3 flex items-center justify-between border-b border-white/5 cursor-pointer"
       @dragover.prevent="handleDragOver"
       @drop.prevent="handleDrop"
       @click="triggerFileInput"
     >
-      <input 
+      <input
         ref="fileInput"
-        type="file" 
-        multiple 
-        accept="image/*" 
-        class="hidden" 
+        type="file"
+        multiple
+        accept="image/*,.pdf"
+        class="hidden"
         @change="handleFileSelect"
       >
-      <div class="flex flex-col items-center">
-        <Icon name="heroicons:upload" class="w-12 h-12 text-gray-400 mb-2" />
-        <p class="text-gray-600">{{ t('upload.dragDrop') }}</p>
-        <p class="text-sm text-gray-500 mt-1">{{ t('upload.or') }}</p>
-        <UButton 
-          color="primary" 
-          variant="solid" 
-          class="mt-2"
-          size="sm"
-        >
-          {{ t('upload.select') }}
-        </UButton>
-      </div>
-    </div>
-
-    <!-- Image Preview -->
-    <div v-if="previewImages.length > 0" class="mt-4">
-      <h3 class="text-lg font-medium text-gray-800 mb-2">{{ t('upload.preview') }}</h3>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-        <div 
-          v-for="(image, index) in previewImages" 
-          :key="index"
-          class="relative group"
-        >
-          <img 
-            :src="image.preview" 
-            :alt="t('upload.previewImage')" 
-            class="w-full h-24 object-cover rounded border"
-          >
-          <button 
-            @click="removeImage(index)"
-            class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-            :title="t('upload.remove')"
-          >
-            <Icon name="heroicons:x-mark" class="w-4 h-4" />
-          </button>
+      <div class="flex items-center gap-4 group">
+        <div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary-dim group-hover:bg-primary group-hover:text-on-primary transition-all">
+          <span class="material-symbols-outlined text-sm">cloud_upload</span>
         </div>
+        <p class="text-xs font-medium text-on-surface-variant"><span class="text-on-surface font-bold">Drag files</span>, click to browse, or paste</p>
       </div>
+      <p class="text-[10px] font-bold text-outline uppercase tracking-widest">Gallery — {{ previewImages.length }} Items</p>
     </div>
-
-    <!-- Clipboard Paste -->
-    <div class="mt-4">
-      <UButton 
-        color="secondary" 
-        variant="outline" 
-        @click="pasteFromClipboard"
-        size="sm"
+    
+    <!-- Thumbnail Gallery -->
+    <div class="flex-1 overflow-x-auto flex items-center gap-4 px-8 py-4 scroll-smooth">
+      <div
+        v-for="(image, index) in previewImages"
+        :key="index"
+        class="relative flex-shrink-0 w-32 h-20 rounded-lg overflow-hidden border border-white/5 group hover:border-white/20 transition-all cursor-pointer"
       >
-        {{ t('upload.paste') }}
-      </UButton>
-      <p class="text-sm text-gray-500 mt-1">{{ t('upload.clipboardInfo') }}</p>
+        <!-- PDF Icon Overlay -->
+        <div v-if="image.type === 'application/pdf'" class="absolute inset-0 bg-gradient-to-br from-red-500/20 to-red-600/20 flex items-center justify-center">
+          <span class="material-symbols-outlined text-3xl text-red-400">picture_as_pdf</span>
+          <div v-if="image.pageCount" class="absolute bottom-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[8px] font-bold text-white">
+            {{ image.pageCount }}p
+          </div>
+        </div>
+        <!-- Regular Image -->
+        <img v-else :src="image.preview" class="w-full h-full object-cover transition-all" />
+        <button
+          @click.stop="removeImage(index)"
+          class="absolute top-1 right-1 w-5 h-5 bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center text-white/60 hover:text-error opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <span class="material-symbols-outlined text-[14px]">close</span>
+        </button>
+      </div>
+
+      <!-- Add Button -->
+      <button 
+        @click="triggerFileInput"
+        class="flex-shrink-0 w-32 h-20 rounded-lg border-2 border-dashed border-white/10 hover:border-primary/50 hover:bg-white/5 transition-all flex flex-col items-center justify-center gap-1 group"
+      >
+        <span class="material-symbols-outlined text-outline group-hover:text-primary">add_photo_alternate</span>
+        <span class="text-[10px] font-bold text-outline group-hover:text-primary">UPLOAD</span>
+      </button>
+      
+      <!-- Paste Button -->
+      <button 
+        @click="pasteFromClipboard"
+        class="flex-shrink-0 w-32 h-20 rounded-lg border-2 border-dashed border-white/10 hover:border-primary/50 hover:bg-white/5 transition-all flex flex-col items-center justify-center gap-1 group"
+      >
+        <span class="material-symbols-outlined text-outline group-hover:text-primary">content_paste</span>
+        <span class="text-[10px] font-bold text-outline group-hover:text-primary">PASTE</span>
+      </button>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
@@ -102,27 +101,40 @@ const handleFileSelect = (event) => {
 }
 
 // Process selected files
-const processFiles = (files) => {
-  const imageFiles = files.filter(file => file.type.startsWith('image/'))
-  
-  imageFiles.forEach(file => {
+const processFiles = async (files) => {
+  const validFiles = files.filter(file => file.type.startsWith('image/') || file.type === 'application/pdf')
+
+  for (const file of validFiles) {
     const reader = new FileReader()
-    reader.onload = (e) => {
-      previewImages.value.push({
+    reader.onload = async (e) => {
+      const newImage = {
         file: file,
-        preview: e.target.result
-      })
+        preview: e.target.result,
+        type: file.type
+      }
+      
+      // Get PDF page count if it's a PDF
+      if (file.type === 'application/pdf') {
+        try {
+          const { getPdfPageCount } = await import('../utils/pdfProcessor')
+          newImage.pageCount = await getPdfPageCount(file)
+        } catch (err) {
+          console.warn('Could not get PDF page count:', err)
+          newImage.pageCount = 0
+        }
+      }
+      
+      previewImages.value.push(newImage)
+      emit('images-uploaded', [...previewImages.value])
     }
     reader.readAsDataURL(file)
-  })
-  
-  // Emit uploaded images
-  emit('images-uploaded', previewImages.value)
+  }
 }
 
 // Remove an image from preview
 const removeImage = (index) => {
   previewImages.value.splice(index, 1)
+  emit('images-uploaded', [...previewImages.value])
 }
 
 // Paste from clipboard
@@ -134,10 +146,12 @@ const pasteFromClipboard = async () => {
         const blob = await clipboardItem.getType('image/png')
         const reader = new FileReader()
         reader.onload = (e) => {
-          previewImages.value.push({
+          const newImage = {
             file: new File([blob], 'clipboard-image.png', { type: 'image/png' }),
             preview: e.target.result
-          })
+          }
+          previewImages.value.push(newImage)
+          emit('images-uploaded', [...previewImages.value])
         }
         reader.readAsDataURL(blob)
       }
@@ -146,6 +160,12 @@ const pasteFromClipboard = async () => {
     console.error('Failed to read clipboard contents:', error)
   }
 }
+
+// Expose methods for parent use
+defineExpose({
+  triggerFileInput,
+  removeImage
+})
 
 const emit = defineEmits(['images-uploaded'])
 </script>

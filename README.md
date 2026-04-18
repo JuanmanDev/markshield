@@ -1,18 +1,29 @@
-# Image Watermarking Application (Nuxt 4)
+# MarkShield — Image & PDF Watermarking (Nuxt 4)
 
-A modern web application for adding watermarks to images using Nuxt 4, Nuxt UI, and Nuxt Image. Supports multiple languages, all image formats, and SEO optimization.
+A client-side watermarking tool for images and PDFs. Built with Nuxt 4, Nuxt UI, and Canvas API. Deployable to Vercel.
 
 ## Features
 
-- **Nuxt 4 Framework**: Built with the latest Nuxt 4 framework
-- **Multi-language Support**: English and Spanish with auto-detection
-- **Image Format Support**: JPG, PNG, GIF, SVG, WebP, Base64, Clipboard
-- **Watermark Customization**: Text, font size, color, opacity, position
-- **Multiple Watermarks**: Add and manage multiple watermarks
-- **Real-time Preview**: See watermark effects instantly
-- **SEO Optimized**: Nuxt Image integration for optimized images
-- **Responsive Design**: Works on all device sizes
-- **Vercel Ready**: Deployable to Vercel with no server-side dependencies
+- **Multi-image gallery** — Upload N files, page through them one at a time (arrow keys or ◀/▶ buttons)
+- **PDF support** — Renders real PDF pages in preview via pdfjs-dist; exports all pages as a watermarked PDF
+- **Rich watermarks** — Solid / gradient / random colors, tiled patterns, background boxes, borders, rotation, multiline text
+- **Smart presets** — 25+ built-in presets + 4 business presets with dynamic token interpolation (`{month_name}`, `{year}`, `{business}`, etc.)
+- **Business name** — Configurable in the sidebar; defaults to "Hostal Zamora"; persisted to localStorage
+- **Export formats** — PNG, JPG, WebP, BMP, TIFF, AVIF (images) · PDF (documents)
+- **Batch export** — Export all uploaded files in one click with the full watermark pipeline
+- **Undo / Redo** — Full history with up to 50 steps
+- **Saved presets** — Up to 10 user presets persisted to localStorage
+- **i18n** — English + Spanish (`/i18n/locales/`)
+- **Mobile responsive** — Collapsible tabs, touch pan/pinch-zoom preview
+
+## Getting Started
+
+```bash
+npm install
+npm run dev       # http://localhost:3008
+npm run build     # Vercel-ready production build
+npm run preview   # Preview production build locally
+```
 
 ## Project Structure
 
@@ -20,83 +31,63 @@ A modern web application for adding watermarks to images using Nuxt 4, Nuxt UI, 
 watermark/
 ├── app/
 │   ├── components/
-│   │   ├── ImageUploader.vue
-│   │   ├── WatermarkConfig.vue
-│   │   ├── WatermarkPreview.vue
-│   │   └── WatermarkManager.vue
+│   │   ├── ImageGallery.vue       # Thumbnail strip / image selector
+│   │   ├── ImageUploader.vue      # Drag-drop / clipboard file intake
+│   │   ├── WatermarkConfig.vue    # Per-watermark property editor
+│   │   ├── WatermarkManager.vue   # Multi-watermark layer list
+│   │   └── WatermarkPreview.vue   # Canvas preview (images + PDFs)
+│   ├── composables/
+│   │   └── useWatermark.js        # Shared watermark state
 │   ├── pages/
-│   │   └── index.vue
-│   ├── locales/
-│   │   ├── en.json
-│   │   └── es.json
-│   └── assets/
-│       └── styles/
-├── nuxt.config.ts
-├── package.json
-└── README.md
+│   │   ├── index.vue              # Landing page
+│   │   └── tool.vue               # Main editor
+│   └── utils/
+│       ├── imageProcessor.js      # Image load / export helpers
+│       ├── pdfProcessor.js        # pdfjs render + jsPDF export
+│       └── presetTokens.js        # {token} interpolation for presets
+├── i18n/locales/
+│   ├── en.json
+│   └── es.json
+├── nuxt.config.ts                 # nitro preset: vercel, /tool SSR-off
+├── vercel.json                    # Cache headers for _nuxt/ assets
+└── tailwind.config.js
 ```
 
-## Getting Started
+## Deployment (Vercel)
 
-1. Install dependencies:
-```bash
-npm install
-```
+The project is pre-configured for Vercel:
+- `nitro.preset: 'vercel'` in `nuxt.config.ts`
+- `/tool` route uses `ssr: false` (fully client-side canvas work)
+- `vercel.json` sets immutable cache headers for hashed assets
+- `engines.node: ">=20.11.0"` in `package.json`
 
-2. Run the development server:
-```bash
-npm run dev
-```
+Push to your Vercel-linked repo and deploy — no extra configuration needed.
 
-3. Build for production:
-```bash
-npm run build
-```
+## Preset Tokens
 
-4. Generate static site:
-```bash
-npm run generate
-```
+Use these inside any preset text (including saved presets):
 
-## Technologies Used
+| Token | Example output |
+|-------|---------------|
+| `{business}` | Hostal Zamora |
+| `{month_name}` | abril |
+| `{month}` | 04 |
+| `{year}` | 2026 |
+| `{date}` | 18/04/2026 |
+| `{time}` | 09:30 |
 
-- **Nuxt 4**: Modern Vue.js framework
-- **Nuxt UI**: Beautiful UI components with Tailwind CSS
-- **Nuxt i18n**: Internationalization support
-- **Nuxt Image**: Image optimization and SEO
-- **Vue 3**: Reactive components
-- **Canvas API**: Client-side image processing
+The business name is editable via the "Business:" field in the sidebar.
 
-## Supported Image Formats
+## localStorage Keys
 
-- JPG, PNG, GIF, SVG, WebP
-- Base64 encoded images
-- Clipboard paste support
-- Drag and drop uploads
-
-## Internationalization
-
-- English (en) - Default
-- Spanish (es) - Auto-detected based on browser language
-- Dynamic language switching
-
-## SEO Features
-
-- Nuxt Image module integration
-- Meta tags for all pages
-- Open Graph tags for social sharing
-- Schema.org structured data
-- Responsive image handling
-- Alt text support for accessibility
-
-## Deployment
-
-The application is ready for deployment to Vercel with:
-- Static site generation
-- No server-side dependencies
-- Optimized for performance
-- SEO-friendly structure
+| Key | Contents |
+|-----|----------|
+| `markshield_presets` | Saved user presets (max 10) |
+| `markshield_watermarks` | Active watermark layers |
+| `markshield_current_watermark` | Current watermark config |
+| `markshield_history` | Undo history |
+| `markshield_settings` | `{ businessName }` |
 
 ## License
 
-This project is open source and available under the MIT License.
+MIT

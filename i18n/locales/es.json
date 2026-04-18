@@ -1,0 +1,88 @@
+{
+  "app": {
+    "title": "MarkShield Estudio de Marcas de Agua",
+    "description": "Agrega marcas de agua personalizadas a tus imágenes y documentos"
+  },
+  "upload": {
+    "title": "Subir Archivos",
+    "dragDrop": "Arrastra y suelta imágenes o PDFs aquí",
+    "or": "o",
+    "select": "Seleccionar Archivos",
+    "preview": "Vista Previa",
+    "previewImage": "Vista previa de imagen",
+    "remove": "Remover archivo",
+    "paste": "Pegar del Portapapeles",
+    "clipboardInfo": "Pega archivos directamente desde tu portapapeles"
+  },
+  "watermark": {
+    "title": "Configuración de Marca de Agua"
+  },
+  "config": {
+    "text": "Texto",
+    "textPlaceholder": "Ingresa el texto de la marca de agua",
+    "fontSize": "Tamaño de Fuente",
+    "rotation": "Rotación",
+    "color": "Color",
+    "textColor": "Color del Texto",
+    "opacity": "Opacidad",
+    "positionX": "Posición X",
+    "positionY": "Posición Y",
+    "apply": "Agregar a la Lista",
+    "gradientStart": "Color Inicial",
+    "gradientEnd": "Color Final",
+    "gradientAngle": "Ángulo del Degradado",
+    "randomColorRange": "Rango de Color",
+    "randomOpacity": "Rango de Opacidad",
+    "background": "Fondo",
+    "backgroundColor": "Color",
+    "backgroundOpacity": "Opacidad",
+    "backgroundPadding": "Relleno",
+    "backgroundRadius": "Radio de Esquina",
+    "border": "Borde",
+    "borderColor": "Color",
+    "borderWidth": "Ancho",
+    "borderOpacity": "Opacidad",
+    "borderStyle": "Estilo",
+    "borderRadius": "Radio de Esquina",
+    "repeat": "Patrón Repetido",
+    "patternSpacingX": "Espaciado Horizontal",
+    "patternSpacingY": "Espaciado Vertical",
+    "patternOffset": "Desplazamiento de Línea",
+    "patternRandomOffset": "Desplazamiento Aleatorio"
+  },
+  "manager": {
+    "title": "Gestor de Marcas de Agua",
+    "edit": "Editar",
+    "remove": "Remover",
+    "fontSize": "Tamaño de Fuente",
+    "color": "Color",
+    "add": "Agregar Marca",
+    "applyAll": "Aplicar a Todo",
+    "empty": "No hay marcas agregadas"
+  },
+  "preview": {
+    "title": "Vista Previa",
+    "image": "Imagen",
+    "processing": "Procesando...",
+    "dimensions": "Dimensiones",
+    "empty": "No se han subido archivos aún",
+    "upload": "Haz clic para subir imágenes o PDFs",
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "reset": "Reiniciar Vista"
+  },
+  "actions": {
+    "apply": "Aplicar Marcas de Agua",
+    "download": "Descargar",
+    "reset": "Reiniciar Todo",
+    "getStarted": "Empezar",
+    "batchProcess": "Proceso por Lote"
+  },
+  "suggestions": {
+    "confidential_desc": "Marca roja para documentos sensibles",
+    "tiled_desc": "Patrón repetido en toda la imagen",
+    "identity_desc": "Visibilidad media para verificación de ID",
+    "brand_desc": "Firma sutil del estudio para obras de arte",
+    "draft_desc": "Marcador gris claro para borradores"
+  }
+}
