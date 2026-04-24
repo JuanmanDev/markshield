@@ -24,13 +24,17 @@
       </div>
 
       <!-- Remove button -->
-      <button
-        class="absolute top-0.5 right-0.5 w-4 h-4 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white/60 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+      <div
+        role="button"
+        tabindex="0"
+        class="absolute top-0.5 right-0.5 w-4 h-4 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white/60 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
         @click.stop="$emit('remove-image', index)"
+        @keydown.enter.stop="$emit('remove-image', index)"
+        @keydown.space.stop.prevent="$emit('remove-image', index)"
         title="Remove"
       >
         <span class="material-symbols-outlined text-[10px]">close</span>
-      </button>
+      </div>
     </button>
 
     <!-- Add more button -->

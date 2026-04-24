@@ -312,7 +312,8 @@ const drawPreview = async () => {
         const { renderPdfPageToCanvas } = await import('../utils/pdfProcessor')
         pdfRender = await renderPdfPageToCanvas(image.file, props.pdfPage || 1, 1.5)
         pdfPageCache.set(cacheKey, pdfRender)
-      } catch {
+      } catch (err) {
+        console.error('[PDF render error]', err)
         // Fallback placeholder on error
         canvas.width = 800
         canvas.height = 1132
@@ -379,36 +380,51 @@ const drawWatermark = (ctx, wm, canvas) => {
   const lineHeight = fontSize * (wm.lineHeightMultiplier || 1.5)
 
   if (wm.pattern) {
-    // Calculate spacing in pixels based on line height
-    const spacingUnit = wm.patternSpacingUnit || 'lines'
-    let stepX, stepY, offset
+    const textLines = (wm.text || '').split('\n')
+    let maxMeasuredWidth = 0
+    textLines.forEach(line => {
+      const m = ctx.measureText(line)
+      if (m.width > maxMeasuredWidth) maxMeasuredWidth = m.width
+    })
 
-    if (spacingUnit === 'lines') {
-      stepX = (wm.patternSpacingX || 3) * lineHeight
-      stepY = (wm.patternSpacingY || 2.5) * lineHeight
-      offset = (wm.patternOffset || 1.5) * lineHeight
-    } else {
-      stepX = wm.patternSpacingX || 150
-      stepY = wm.patternSpacingY || 100
-      offset = wm.patternOffset || 0
+    // Calculate spacing in pixels — each axis has its own unit
+    const toPixels = (val, unit) => {
+      if (unit === 'px') return val
+      if (unit === 'em') return val * fontSize
+      return val * lineHeight  // 'lines' (×lh)
     }
+    const unitX = wm.patternSpacingXUnit ?? wm.patternSpacingUnit ?? 'lines'
+    const unitY = wm.patternSpacingYUnit ?? wm.patternSpacingUnit ?? 'lines'
+    const gapTop = (wm.patternGapTop || 0) * lineHeight
+    const gapBottom = (wm.patternGapBottom || 0) * lineHeight
+    let stepX = toPixels(wm.patternSpacingX || 3, unitX)
+    let stepY = toPixels(wm.patternSpacingY || 2.5, unitY) + gapTop + gapBottom
+    const offset = (wm.patternOffset || 1.5) * lineHeight
+
+    // Enforce minimum spacing so text instances don't overlap
+    stepX = Math.max(stepX, maxMeasuredWidth + fontSize * 0.5)
+    stepY = Math.max(stepY, textLines.length * lineHeight + lineHeight * 0.3)
 
     const useRandomOffset = wm.patternRandomOffset || false
-    const patternRotation = ((wm.patternRotation || wm.rotation || 0)) * Math.PI / 180
+    const patternRotation = (wm.patternRotation || wm.rotation || 0) * Math.PI / 180
 
+    // Rotate around canvas center
     ctx.save()
     ctx.translate(canvas.width / 2, canvas.height / 2)
     ctx.rotate(patternRotation)
     ctx.translate(-canvas.width / 2, -canvas.height / 2)
 
-    let row = 0
-    for (let py = -stepY; py < canvas.height + stepY * 2; py += stepY) {
-      const rowOffset = useRandomOffset ? (Math.random() - 0.5) * offset * 2 : (row % 2 === 0 ? 0 : offset)
+    // Cover full canvas under any rotation by using the diagonal as sweep radius
+    const diag = Math.ceil(Math.sqrt(canvas.width * canvas.width + canvas.height * canvas.height))
 
-      for (let px = -stepX + rowOffset; px < canvas.width + stepX * 2; px += stepX) {
-        const adjustedX = px - canvas.width / 2
-        const adjustedY = py - canvas.height / 2
-        drawSingleWatermark(ctx, wm, adjustedX, adjustedY, fontSize, 0, canvas)
+    let row = 0
+    for (let py = -diag; py < canvas.height + diag; py += stepY) {
+      const rowOffset = useRandomOffset
+        ? (Math.random() - 0.5) * offset * 2
+        : (row % 2 === 0 ? 0 : offset)
+
+      for (let px = -diag + rowOffset; px < canvas.width + diag; px += stepX) {
+        drawSingleWatermark(ctx, wm, px, py, fontSize, 0, canvas)
       }
       row++
     }
@@ -424,101 +440,151 @@ const drawWatermark = (ctx, wm, canvas) => {
 
 const drawSingleWatermark = (ctx, wm, x, y, fontSize, rotation, canvas) => {
   ctx.save()
-
   ctx.translate(x, y)
   ctx.rotate(rotation)
 
-  // Handle multi-line text
   const textLines = (wm.text || 'Watermark').split('\n')
   const lineHeight = fontSize * (wm.lineHeightMultiplier || 1.5)
   const totalHeight = textLines.length * lineHeight
   const startY = -totalHeight / 2 + lineHeight / 2
 
-  // Measure text for background/border (use longest line)
   let maxTextWidth = 0
   textLines.forEach(line => {
-    const metrics = ctx.measureText(line)
-    if (metrics.width > maxTextWidth) maxTextWidth = metrics.width
+    const m = ctx.measureText(line)
+    if (m.width > maxTextWidth) maxTextWidth = m.width
   })
 
   const textWidth = maxTextWidth
   const textHeight = totalHeight
-  const padding = wm.bgPadding || 10
+  const padding = wm.bgPaddingAuto ? fontSize * (wm.bgPaddingMult || 0.3) : (wm.bgPadding ?? 10)
+  const bgRadius = wm.bgRadiusAuto ? fontSize * (wm.bgRadiusMult || 0.15) : (wm.bgRadius ?? 0)
+  const bw = wm.borderWidth || 2
 
-  // Draw background if enabled
+  const bgX = -textWidth / 2 - padding
+  const bgY = -textHeight / 2 - padding
+  const bgW = textWidth + padding * 2
+  const bgH = textHeight + padding * 2
+
+  // Cutout mode: render background with text hole using offscreen canvas
+  if (wm.textCutout && wm.bgEnabled) {
+    const pad = Math.max(padding, bw) + fontSize
+    const offW = bgW + pad * 2
+    const offH = bgH + pad * 2
+    const off = document.createElement('canvas')
+    off.width = offW
+    off.height = offH
+    const oc = off.getContext('2d')
+    oc.font = ctx.font
+    oc.textBaseline = 'middle'
+    oc.textAlign = 'center'
+
+    const ox = offW / 2
+    const oy = offH / 2
+
+    // Draw background
+    oc.globalAlpha = wm.bgOpacity ?? 0.5
+    oc.fillStyle = wm.bgColor || '#000000'
+    drawRoundedRectOnCtx(oc, ox + bgX, oy + bgY, bgW, bgH, bgRadius)
+    oc.fill()
+
+    // Punch text hole
+    oc.globalCompositeOperation = 'destination-out'
+    oc.globalAlpha = 1
+    textLines.forEach((line, i) => {
+      oc.fillText(line, ox, oy + startY + i * lineHeight)
+    })
+
+    ctx.drawImage(off, -offW / 2, -offH / 2)
+
+    // Draw border over the offscreen result
+    if (wm.borderEnabled) {
+      drawBorderOnCtx(ctx, wm, bgX, bgY, bgW, bgH, bw, bgRadius, fontSize)
+    }
+    ctx.restore()
+    return
+  }
+
+  // Normal background
   if (wm.bgEnabled) {
     ctx.save()
     ctx.fillStyle = wm.bgColor || '#000000'
-    ctx.globalAlpha = wm.bgOpacity || 0.5
-
-    const bgX = -textWidth / 2 - padding
-    const bgY = -textHeight / 2 - padding
-    const bgWidth = textWidth + padding * 2
-    const bgHeight = textHeight + padding * 2
-    const radius = wm.bgRadius || 0
-
-    drawRoundedRect(ctx, bgX, bgY, bgWidth, bgHeight, radius)
+    ctx.globalAlpha = wm.bgOpacity ?? 0.5
+    drawRoundedRectOnCtx(ctx, bgX, bgY, bgW, bgH, bgRadius)
     ctx.fill()
     ctx.restore()
   }
 
-  // Draw border if enabled
+  // Border
   if (wm.borderEnabled) {
-    ctx.save()
-    ctx.strokeStyle = wm.borderColor || '#ffffff'
-    ctx.globalAlpha = wm.borderOpacity || 1
-    ctx.lineWidth = wm.borderWidth || 2
-
-    if (wm.borderStyle === 'dashed') {
-      ctx.setLineDash([fontSize * 0.3, fontSize * 0.2])
-    } else if (wm.borderStyle === 'dotted') {
-      ctx.setLineDash([fontSize * 0.1, fontSize * 0.15])
-    }
-
-    const borderX = -textWidth / 2 - padding - wm.borderWidth
-    const borderY = -textHeight / 2 - padding - wm.borderWidth
-    const borderWidth = textWidth + (padding + wm.borderWidth) * 2
-    const borderHeight = textHeight + (padding + wm.borderWidth) * 2
-    const borderRadius = wm.borderRadius || 0
-
-    drawRoundedRect(ctx, borderX, borderY, borderWidth, borderHeight, borderRadius)
-    ctx.stroke()
-    ctx.restore()
+    drawBorderOnCtx(ctx, wm, bgX, bgY, bgW, bgH, bw, bgRadius, fontSize)
   }
 
-  // Set text color based on color mode
+  // Text color
   let textColor = wm.color || '#ffffff'
-  let textOpacity = wm.opacity || 0.7
+  let textOpacity = wm.opacity ?? 0.7
 
   if (wm.colorMode === 'gradient') {
     const angle = (wm.gradientAngle || 45) * Math.PI / 180
-    const gradientLength = textWidth * 1.5
-    const x1 = -Math.cos(angle) * gradientLength / 2
-    const x2 = Math.cos(angle) * gradientLength / 2
-    const y1 = -Math.sin(angle) * gradientLength / 2
-    const y2 = Math.sin(angle) * gradientLength / 2
-
-    const gradient = ctx.createLinearGradient(x1, y1, x2, y2)
+    const gl = textWidth * 1.5
+    const gradient = ctx.createLinearGradient(
+      -Math.cos(angle) * gl / 2, -Math.sin(angle) * gl / 2,
+      Math.cos(angle) * gl / 2, Math.sin(angle) * gl / 2
+    )
     gradient.addColorStop(0, wm.gradientStart || '#667eea')
     gradient.addColorStop(1, wm.gradientEnd || '#764ba2')
     textColor = gradient
   } else if (wm.colorMode === 'random') {
     textColor = getRandomColor(wm.randomColorMin || '#667eea', wm.randomColorMax || '#764ba2')
-    textOpacity = wm.randomOpacityMin + Math.random() * (wm.randomOpacityMax - wm.randomOpacityMin)
+    textOpacity = (wm.randomOpacityMin || 0.3) + Math.random() * ((wm.randomOpacityMax || 0.8) - (wm.randomOpacityMin || 0.3))
   }
 
-  // Draw multi-line text
   ctx.globalAlpha = textOpacity
   ctx.fillStyle = textColor
   ctx.textBaseline = 'middle'
   ctx.textAlign = 'center'
 
-  textLines.forEach((line, index) => {
-    const lineY = startY + (index * lineHeight)
-    ctx.fillText(line, 0, lineY)
+  textLines.forEach((line, i) => {
+    ctx.fillText(line, 0, startY + i * lineHeight)
   })
 
   ctx.restore()
+}
+
+// Draw border stroke with style support
+const drawBorderOnCtx = (ctx, wm, bgX, bgY, bgW, bgH, bw, radius, fontSize) => {
+  ctx.save()
+  ctx.strokeStyle = wm.borderColor || '#ffffff'
+  ctx.globalAlpha = wm.borderOpacity ?? 1
+
+  if (wm.borderStyle === 'dashed') {
+    ctx.setLineDash([fontSize * 0.3, fontSize * 0.2])
+    ctx.lineWidth = bw
+    drawRoundedRectOnCtx(ctx, bgX - bw / 2, bgY - bw / 2, bgW + bw, bgH + bw, radius)
+    ctx.stroke()
+  } else if (wm.borderStyle === 'dotted') {
+    ctx.setLineDash([fontSize * 0.1, fontSize * 0.15])
+    ctx.lineWidth = bw
+    drawRoundedRectOnCtx(ctx, bgX - bw / 2, bgY - bw / 2, bgW + bw, bgH + bw, radius)
+    ctx.stroke()
+  } else if (wm.borderStyle === 'double') {
+    const gap = Math.max(2, bw / 3)
+    ctx.lineWidth = gap
+    ctx.setLineDash([])
+    drawRoundedRectOnCtx(ctx, bgX - bw, bgY - bw, bgW + bw * 2, bgH + bw * 2, radius + bw)
+    ctx.stroke()
+    drawRoundedRectOnCtx(ctx, bgX + gap, bgY + gap, bgW - gap * 2, bgH - gap * 2, Math.max(0, radius - gap))
+    ctx.stroke()
+  } else {
+    ctx.lineWidth = bw
+    ctx.setLineDash([])
+    drawRoundedRectOnCtx(ctx, bgX - bw / 2, bgY - bw / 2, bgW + bw, bgH + bw, radius)
+    ctx.stroke()
+  }
+  ctx.restore()
+}
+
+const drawRoundedRectOnCtx = (ctx, x, y, width, height, radius) => {
+  drawRoundedRect(ctx, x, y, width, height, radius)
 }
 
 const drawRoundedRect = (ctx, x, y, width, height, radius) => {

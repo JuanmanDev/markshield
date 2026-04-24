@@ -53,6 +53,12 @@ export default defineNuxtConfig({
     preset: 'vercel'
   },
 
+  vite: {
+    optimizeDeps: {
+      exclude: ['pdfjs-dist']
+    }
+  },
+
   routeRules: {
     '/tool': { ssr: false }
   },

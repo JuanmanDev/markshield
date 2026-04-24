@@ -161,10 +161,17 @@ const pasteFromClipboard = async () => {
   }
 }
 
+// Clear all images
+const clearAll = () => {
+  previewImages.value = []
+  emit('images-uploaded', [])
+}
+
 // Expose methods for parent use
 defineExpose({
   triggerFileInput,
-  removeImage
+  removeImage,
+  clearAll
 })
 
 const emit = defineEmits(['images-uploaded'])

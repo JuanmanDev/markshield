@@ -5,9 +5,10 @@
 
 import * as pdfjsLib from 'pdfjs-dist'
 import { jsPDF } from 'jspdf'
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 
-// Use CDN worker (https, not protocol-relative) — works in all deployment contexts
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+// Let Vite own the asset URL so dev-server and production both resolve correctly.
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl
 
 /**
  * Render PDF page to canvas

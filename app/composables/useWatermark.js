@@ -40,10 +40,17 @@ export function useWatermark() {
     borderOpacity: 1,
     borderStyle: 'solid',
     borderRadius: 0,
-    patternSpacingX: 150,
-    patternSpacingY: 100,
-    patternOffset: 0,
-    patternRandomOffset: false
+    patternSpacingX: 3,
+    patternSpacingY: 2.5,
+    patternSpacingXUnit: 'lines',
+    patternSpacingYUnit: 'lines',
+    patternOffset: 1.5,
+    patternGapTop: 0,
+    patternGapBottom: 0,
+    patternRandomOffset: false,
+    patternRotation: 0,
+    lineHeightMultiplier: 1.5,
+    textCutout: false
   })
   
   // Processing state
@@ -125,10 +132,17 @@ export function useWatermark() {
       borderOpacity: 1,
       borderStyle: 'solid',
       borderRadius: 0,
-      patternSpacingX: 150,
-      patternSpacingY: 100,
-      patternOffset: 0,
-      patternRandomOffset: false
+      patternSpacingX: 3,
+      patternSpacingY: 2.5,
+      patternSpacingXUnit: 'lines',
+      patternSpacingYUnit: 'lines',
+      patternOffset: 1.5,
+      patternGapTop: 0,
+      patternGapBottom: 0,
+      patternRandomOffset: false,
+      patternRotation: 0,
+      lineHeightMultiplier: 1.5,
+      textCutout: false
     })
     isProcessing.value = false
   }

@@ -39,7 +39,7 @@
 
         <!-- Desktop Only Buttons -->
         <div class="hidden md:flex items-center gap-2">
-          <button class="px-4 py-2 text-sm font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded-lg transition-all" @click="resetAll">{{ t('actions.reset') }}</button>
+          <button class="px-4 py-2 text-sm font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded-lg transition-all" @click="resetAllAndClear">{{ t('actions.reset') }}</button>
           
           <!-- PDF Page Navigation (if PDF) -->
           <div v-if="currentPdfPages > 1" class="flex items-center gap-1 bg-white/5 rounded-lg px-2 py-1">
@@ -60,16 +60,6 @@
             </button>
           </div>
           
-          <button
-            class="px-5 py-2 text-sm font-bold border border-white/10 hover:bg-white/5 text-slate-200 rounded-lg shadow-lg transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
-            :disabled="selectedImages.length < 2"
-            @click="showBatchModal = true"
-          >
-            <span class="material-symbols-outlined text-sm">photo_library</span>
-            Batch
-          </button>
-          <button class="px-5 py-2 text-sm font-bold bg-gradient-to-br from-primary-dim to-primary text-on-primary-fixed rounded-lg shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50 active:scale-95" :disabled="!selectedImages.length || isProcessing" @click="applyWatermarks">{{ t('actions.apply') }}</button>
-          
           <!-- Save Button with Format Selector -->
           <div class="relative" ref="saveButtonRef">
             <button 
@@ -83,10 +73,25 @@
             </button>
             
             <!-- Save Dropdown -->
-            <div 
+            <div
               v-if="showSaveDropdown"
-              class="absolute top-full right-0 mt-2 w-48 bg-[#0a1628] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden"
+              class="absolute top-full right-0 mt-2 w-52 bg-[#0a1628] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden"
             >
+              <!-- Scope tabs -->
+              <div class="p-2 border-b border-white/5">
+                <div class="flex gap-1 p-0.5 bg-surface-container rounded-lg">
+                  <button
+                    @click="saveExportScope = 'current'"
+                    class="flex-1 py-1 px-1.5 rounded text-[9px] font-bold transition-all"
+                    :class="saveExportScope === 'current' ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'"
+                  >Current</button>
+                  <button
+                    @click="saveExportScope = 'all'"
+                    class="flex-1 py-1 px-1.5 rounded text-[9px] font-bold transition-all"
+                    :class="saveExportScope === 'all' ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'"
+                  >All ({{ selectedImages.length }})</button>
+                </div>
+              </div>
               <div class="p-2 border-b border-white/5">
                 <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Export Format</p>
                 <div class="grid grid-cols-3 gap-1">
@@ -116,11 +121,11 @@
                 />
               </div>
               <button
-                @click="exportImage(); showSaveDropdown = false"
+                @click="exportImage(saveExportScope === 'all'); showSaveDropdown = false"
                 class="w-full py-2.5 px-3 text-xs font-bold bg-primary hover:bg-primary-dim text-on-primary transition-all flex items-center justify-center gap-1.5"
               >
                 <span class="material-symbols-outlined text-sm">download</span>
-                Export {{ hasPdfFiles ? 'PDF' : 'Image' }}
+                Export {{ saveExportScope === 'all' ? 'All' : (hasPdfFiles ? 'PDF' : 'Image') }}
               </button>
             </div>
           </div>
@@ -134,25 +139,15 @@
         <WatermarkManager
           :watermarks="watermarks"
           @add-watermark="addWatermark"
-          @update-watermark="updateWatermark"
+          @update-watermark="handleEditWatermark"
           @remove-watermark="removeWatermark"
           @apply-watermarks="applyWatermarks"
         />
         <WatermarkConfig
           :watermark="currentWatermark"
           @update:watermark="handleWatermarkUpdate"
+          @add-watermark="addWatermark"
         />
-      </div>
-      <div class="p-6 bg-surface-container-low/50 border-t border-white/5">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-violet-500/20">
-            <span class="material-symbols-outlined text-on-primary-fixed text-lg" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
-          </div>
-          <div>
-            <p class="text-xs font-bold text-on-surface">The Lucid Curator</p>
-            <p class="text-[10px] text-on-surface-variant">Pro Editor Active</p>
-          </div>
-        </div>
       </div>
     </aside>
 
@@ -220,56 +215,50 @@
       </div>
 
       <!-- Action Footer / Suggestions Bar -->
-      <div class="h-48 bg-surface-container-low/30 border-t border-white/5 flex flex-col overflow-hidden">
-        <div class="p-4 px-6 border-b border-white/5 flex items-center justify-between">
+      <div class="h-44 bg-surface-container-low/30 border-t border-white/5 flex flex-col overflow-hidden">
+        <div class="px-4 py-2 border-b border-white/5 flex items-center justify-between shrink-0">
           <h4 class="text-[10px] font-black tracking-tightest uppercase text-on-surface-variant flex items-center gap-2">
             <span class="material-symbols-outlined text-sm text-primary">auto_fix_high</span>
             Smart Suggestions
           </h4>
-          <!-- Business name inline edit -->
-          <div class="flex items-center gap-2">
-            <span class="text-[9px] text-on-surface-variant uppercase tracking-widest">Business:</span>
-            <input
-              v-model="businessName"
-              class="text-[10px] font-bold bg-white/5 border border-white/10 rounded px-2 py-1 text-on-surface w-32 focus:outline-none focus:border-primary/50"
-              placeholder="Hostal Zamora"
-            />
+          <div class="flex items-center gap-1">
+            <button @click="scrollSuggestions(-1)" class="p-1 hover:bg-white/10 rounded-lg transition-all text-on-surface-variant hover:text-on-surface">
+              <span class="material-symbols-outlined text-base">chevron_left</span>
+            </button>
+            <button @click="scrollSuggestions(1)" class="p-1 hover:bg-white/10 rounded-lg transition-all text-on-surface-variant hover:text-on-surface">
+              <span class="material-symbols-outlined text-base">chevron_right</span>
+            </button>
           </div>
         </div>
 
-        <div class="flex-1 overflow-x-auto p-6 scrollbar-hide">
-          <div class="flex items-center gap-4 h-full">
+        <div ref="suggestionsCarouselRef" class="flex-1 overflow-x-auto px-4 py-2 scrollbar-hide">
+          <div class="flex items-center gap-2 h-full">
             <button
-              v-for="sug in suggestions"
+              v-for="sug in visibleSuggestions"
               :key="sug.id"
-              class="flex-shrink-0 w-56 h-full rounded-2xl bg-surface-container hover:bg-surface-container-high border border-white/5 hover:border-primary/20 transition-all group flex flex-col p-4 text-left relative overflow-hidden"
+              class="flex-shrink-0 w-28 h-full rounded-lg bg-surface-container hover:bg-surface-container-high border border-white/[0.06] hover:border-primary/30 transition-all group flex flex-col p-1.5 text-left relative overflow-hidden"
               @click="applySuggestion(sug)"
             >
-              <div class="absolute top-0 right-0 w-16 h-16 bg-primary/5 blur-2xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
-              <div class="w-full h-20 rounded-lg bg-surface-container-highest mb-3 flex items-center justify-center overflow-hidden relative group-hover:scale-105 transition-transform">
-                <div class="absolute inset-0 opacity-20">
-                  <div class="w-full h-full bg-gradient-to-br from-violet-500/30 to-indigo-500/30"></div>
-                </div>
-                <span class="material-symbols-outlined text-3xl relative z-10" :style="{ color: sug.color }">{{ sug.icon }}</span>
+              <div class="w-full flex-1 rounded-md bg-black/30 mb-1.5 overflow-hidden relative group-hover:scale-[1.02] transition-transform">
+                <img v-if="currentImagePreview" :src="currentImagePreview" class="absolute inset-0 w-full h-full object-cover" />
+                <div v-else class="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-indigo-500/20"></div>
+                <!-- overlay tint so text is always readable -->
+                <div class="absolute inset-0 bg-black/20"></div>
                 <div
-                  class="absolute inset-0 flex items-center justify-center pointer-events-none"
-                  :style="{ opacity: sug.opacity, transform: `rotate(${sug.rotation || 0}deg)` }"
+                  class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
+                  :style="{ transform: `rotate(${sug.rotation || 0}deg)` }"
                 >
-                  <span class="text-[8px] font-bold truncate px-2" :style="{ color: sug.color, fontSize: Math.min(10, sug.size / 3) + 'px' }">{{ sug.text }}</span>
+                  <span
+                    class="font-black text-center leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] px-1"
+                    :style="{ color: sug.color, fontSize: Math.min(9, sug.size / 5) + 'px', opacity: Math.max(sug.opacity, 0.85) }"
+                  >{{ sug.text }}</span>
                 </div>
               </div>
-              <p class="text-xs font-bold mb-1">{{ sug.label }}</p>
-              <p class="text-[10px] text-on-surface-variant leading-tight opacity-60">{{ t(`suggestions.${sug.id}_desc`) || 'Custom styling preset' }}</p>
-              <div class="mt-auto flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-primary/40 group-hover:bg-primary transition-colors"></span>
-                <span class="text-[9px] font-bold text-outline tracking-widest uppercase">Apply Preset</span>
-              </div>
+              <p class="text-[9px] font-bold truncate leading-none">{{ sug.label }}</p>
             </button>
           </div>
         </div>
       </div>
-
-      <ImageUploader ref="uploaderRef" @images-uploaded="handleImagesUploaded" />
     </main>
 
     <!-- Mobile Layout - Preview on Top, Controls on Bottom -->
@@ -338,22 +327,12 @@
         <!-- Tab Content -->
         <div class="flex-1 overflow-y-auto" @scroll="handleScroll">
           <!-- Files Tab -->
-          <div v-if="activeTab === 'files'" class="p-2">
+          <div v-show="activeTab === 'files'" class="p-2">
             <ImageUploader ref="uploaderRef" @images-uploaded="handleImagesUploaded" />
-            
-            <!-- Batch & Reset Buttons in Files Tab -->
-            <div v-if="selectedImages.length > 0" class="grid grid-cols-2 gap-2 mt-3">
+            <div v-if="selectedImages.length > 0" class="mt-2">
               <button
-                v-if="selectedImages.length >= 2"
-                @click="showBatchModal = true"
-                class="py-2.5 px-3 text-xs font-bold border border-white/10 hover:bg-white/5 text-slate-200 rounded-lg transition-all flex items-center justify-center gap-1.5"
-              >
-                <span class="material-symbols-outlined text-sm">photo_library</span>
-                Batch Process
-              </button>
-              <button 
-                @click="resetAll"
-                class="py-2.5 px-3 text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded-lg transition-all flex items-center justify-center gap-1.5"
+                @click="resetAllAndClear"
+                class="w-full py-2 px-3 text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded-lg transition-all flex items-center justify-center gap-1.5"
               >
                 <span class="material-symbols-outlined text-sm">refresh</span>
                 Reset All
@@ -395,43 +374,40 @@
                   Save Current
                 </button>
               </div>
-              <div class="grid grid-cols-2 gap-2 mb-3">
+              <div class="grid grid-cols-3 gap-1.5 mb-3">
                 <button
                   v-for="preset in savedPresets"
                   :key="preset.id"
-                  class="rounded-lg bg-surface-container hover:bg-surface-container-high border border-white/5 hover:border-primary/20 transition-all group flex flex-col p-2 text-left relative overflow-hidden"
+                  class="rounded-lg bg-surface-container hover:bg-surface-container-high border border-white/[0.06] hover:border-primary/30 transition-all group flex flex-col p-1.5 text-left relative overflow-hidden"
                   @click="applySuggestion(preset)"
                 >
                   <!-- Delete button -->
-                  <button 
+                  <div
+                    role="button"
+                    tabindex="0"
                     @click="deleteSavedPreset(preset.id, $event)"
-                    class="absolute top-1 right-1 w-5 h-5 bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center text-white/60 hover:text-error opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                    @keydown.enter="deleteSavedPreset(preset.id, $event)"
+                    @keydown.space.prevent="deleteSavedPreset(preset.id, $event)"
+                    class="absolute top-0.5 right-0.5 w-4 h-4 bg-black/70 rounded-full flex items-center justify-center text-white/60 hover:text-error opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
                   >
-                    <span class="material-symbols-outlined text-[12px]">close</span>
-                  </button>
-                  
-                  <div class="w-full h-20 rounded-md bg-surface-container-highest mb-1.5 flex items-center justify-center overflow-hidden relative">
-                    <img
-                      v-if="currentImagePreview"
-                      :src="currentImagePreview"
-                      class="absolute inset-0 w-full h-full object-cover opacity-40"
-                    />
+                    <span class="material-symbols-outlined text-[10px]">close</span>
+                  </div>
+
+                  <div class="w-full h-16 rounded-md bg-black/30 mb-1 overflow-hidden relative">
+                    <img v-if="currentImagePreview" :src="currentImagePreview" class="absolute inset-0 w-full h-full object-cover" />
                     <div v-else class="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-indigo-500/20"></div>
+                    <div class="absolute inset-0 bg-black/20"></div>
                     <div
-                      class="absolute inset-0 flex items-center justify-center pointer-events-none"
-                      :style="{ opacity: preset.opacity || 0.7 }"
+                      class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
+                      :style="{ transform: `rotate(${preset.rotation || 0}deg)` }"
                     >
                       <span
-                        class="font-bold px-1 text-center leading-tight"
-                        :style="{
-                          color: preset.color || '#ffffff',
-                          fontSize: Math.min(11, (preset.fontSize || preset.size || 32) / 4) + 'px',
-                          transform: `rotate(${preset.rotation || 0}deg)`
-                        }"
+                        class="font-black text-center leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] px-0.5"
+                        :style="{ color: preset.color || '#ffffff', fontSize: Math.min(8, (preset.fontSize || preset.size || 32) / 5) + 'px', opacity: Math.max(preset.opacity || 0.7, 0.85) }"
                       >{{ preset.text }}</span>
                     </div>
                   </div>
-                  <p class="text-[11px] font-bold truncate">{{ preset.label }}</p>
+                  <p class="text-[8px] font-bold truncate leading-none">{{ preset.label }}</p>
                 </button>
               </div>
             </div>
@@ -439,35 +415,28 @@
             <!-- Default Presets Section -->
             <div>
               <h4 class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-2 px-1">Default Presets</h4>
-              <div class="grid grid-cols-2 gap-2">
+              <div class="grid grid-cols-3 gap-1.5">
                 <button
-                  v-for="sug in suggestions"
+                  v-for="sug in visibleSuggestions"
                   :key="sug.id"
-                  class="rounded-lg bg-surface-container hover:bg-surface-container-high border border-white/5 hover:border-primary/20 transition-all group flex flex-col p-2 text-left relative overflow-hidden"
+                  class="rounded-lg bg-surface-container hover:bg-surface-container-high border border-white/[0.06] hover:border-primary/30 transition-all group flex flex-col p-1.5 text-left relative overflow-hidden"
                   @click="applySuggestion(sug)"
                 >
-                  <div class="w-full h-20 rounded-md bg-surface-container-highest mb-1.5 flex items-center justify-center overflow-hidden relative">
-                    <img
-                      v-if="currentImagePreview"
-                      :src="currentImagePreview"
-                      class="absolute inset-0 w-full h-full object-cover opacity-40"
-                    />
+                  <div class="w-full h-16 rounded-md bg-black/30 mb-1 overflow-hidden relative">
+                    <img v-if="currentImagePreview" :src="currentImagePreview" class="absolute inset-0 w-full h-full object-cover" />
                     <div v-else class="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-indigo-500/20"></div>
+                    <div class="absolute inset-0 bg-black/20"></div>
                     <div
-                      class="absolute inset-0 flex items-center justify-center pointer-events-none"
-                      :style="{ opacity: sug.opacity }"
+                      class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
+                      :style="{ transform: `rotate(${sug.rotation || 0}deg)` }"
                     >
                       <span
-                        class="font-bold px-1 text-center leading-tight"
-                        :style="{
-                          color: sug.color,
-                          fontSize: Math.min(11, sug.size / 4) + 'px',
-                          transform: `rotate(${sug.rotation || 0}deg)`
-                        }"
+                        class="font-black text-center leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] px-0.5"
+                        :style="{ color: sug.color, fontSize: Math.min(8, sug.size / 5) + 'px', opacity: Math.max(sug.opacity, 0.85) }"
                       >{{ sug.text }}</span>
                     </div>
                   </div>
-                  <p class="text-[11px] font-bold">{{ sug.label }}</p>
+                  <p class="text-[8px] font-bold truncate leading-none">{{ sug.label }}</p>
                 </button>
               </div>
             </div>
@@ -487,7 +456,7 @@
             <WatermarkManager
               :watermarks="watermarks"
               @add-watermark="addWatermark"
-              @update-watermark="updateWatermark"
+              @update-watermark="handleEditWatermark"
               @remove-watermark="removeWatermark"
               @apply-watermarks="applyWatermarks"
             />
@@ -496,7 +465,19 @@
           <!-- Save Tab -->
           <div v-if="activeTab === 'save'" class="p-2 space-y-3">
             <div class="p-3 bg-surface-container rounded-lg space-y-3">
-              <h4 class="text-xs font-bold text-on-surface">Export Settings</h4>
+              <!-- Scope Tab Selector -->
+              <div class="flex gap-1 p-0.5 bg-surface-container-highest rounded-lg">
+                <button
+                  @click="saveExportScope = 'current'"
+                  class="flex-1 py-1.5 rounded-md text-[10px] font-bold transition-all"
+                  :class="saveExportScope === 'current' ? 'bg-primary text-on-primary' : 'text-on-surface-variant'"
+                >Current Image</button>
+                <button
+                  @click="saveExportScope = 'all'"
+                  class="flex-1 py-1.5 rounded-md text-[10px] font-bold transition-all"
+                  :class="saveExportScope === 'all' ? 'bg-primary text-on-primary' : 'text-on-surface-variant'"
+                >All ({{ selectedImages.length }})</button>
+              </div>
 
               <!-- PDF Detection -->
               <div v-if="hasPdfFiles" class="p-2 bg-primary/10 border border-primary/20 rounded-lg">
@@ -550,83 +531,30 @@
                   min="0" max="4096" step="256"
                   class="w-full h-1 bg-surface-container rounded-full appearance-none accent-primary"
                 />
-                <div class="flex justify-between text-[8px] text-on-surface-variant">
-                  <span>Original</span>
-                  <span>1024</span>
-                  <span>2048</span>
-                  <span>4096</span>
-                </div>
               </div>
 
-              <!-- Export Buttons -->
-              <div class="space-y-2">
-                <!-- Export First Image -->
-                <button
-                  @click="exportImage(false)"
-                  :disabled="!selectedImages.length || isProcessing"
-                  class="w-full py-3 rounded-lg bg-primary hover:bg-primary-dim text-on-primary text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  <span class="material-symbols-outlined text-sm">{{ hasPdfFiles ? 'picture_as_pdf' : 'download' }}</span>
-                  Export {{ hasPdfFiles ? 'PDF' : 'Current Image' }}
-                </button>
-
-                <!-- Export All Images (if multiple) -->
-                <button
-                  v-if="selectedImages.length >= 2"
-                  @click="exportImage(true)"
-                  :disabled="isProcessing"
-                  class="w-full py-3 rounded-lg border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  <span class="material-symbols-outlined text-sm">photo_library</span>
-                  Export All {{ selectedImages.length }} Images
-                </button>
-              </div>
+              <!-- Export Button -->
+              <button
+                @click="exportImage(saveExportScope === 'all')"
+                :disabled="!selectedImages.length || isProcessing"
+                class="w-full py-3 rounded-lg bg-primary hover:bg-primary-dim text-on-primary text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <span class="material-symbols-outlined text-sm">download</span>
+                Export {{ saveExportScope === 'all' ? 'All ' + selectedImages.length + ' Images' : (hasPdfFiles ? 'PDF' : 'Current Image') }}
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Batch Process Modal -->
-    <div v-if="showBatchModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" @click.self="showBatchModal = false">
-      <div class="bg-[#0a1628] border border-white/10 rounded-2xl shadow-2xl max-w-sm w-full max-h-[70vh] overflow-hidden">
-        <div class="p-4 border-b border-white/5 flex items-center justify-between">
-          <h3 class="text-sm font-bold flex items-center gap-2">
-            <span class="material-symbols-outlined text-primary text-base">photo_library</span>
-            Batch Process
-          </h3>
-          <button @click="showBatchModal = false" class="p-1 hover:bg-white/5 rounded-lg transition-all">
-            <span class="material-symbols-outlined text-base">close</span>
-          </button>
-        </div>
-        
-        <div class="p-4 overflow-y-auto max-h-[50vh]">
-          <p class="text-xs text-on-surface-variant mb-3">Apply watermarks to all {{ selectedImages.length }} images</p>
-          
-          <div class="flex gap-2">
-            <button 
-              @click="batchProcess('png')"
-              class="flex-1 py-2.5 rounded-lg bg-primary hover:bg-primary-dim text-on-primary text-xs font-bold transition-all flex items-center justify-center gap-1.5"
-            >
-              <span class="material-symbols-outlined text-sm">download</span>
-              PNG
-            </button>
-            <button 
-              @click="batchProcess('jpg')"
-              class="flex-1 py-2.5 rounded-lg border border-white/10 hover:bg-white/5 text-on-surface text-xs font-bold transition-all"
-            >
-              JPG
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, watch, onMounted, computed, onBeforeUnmount } from 'vue'
 import { renderPresetText } from '../utils/presetTokens'
+import suggestionsData from '../data/presets.json'
 
 const { t, locale, setLocale } = useI18n()
 
@@ -635,13 +563,14 @@ const toggleLanguage = () => {
 }
 
 const uploaderRef = ref(null)
-const showBatchModal = ref(false)
 const activeTab = ref('files')
 const exportFormat = ref('png')
 const exportQuality = ref(90)
-const maxExportSize = ref(0) // 0 = no limit, otherwise max dimension in pixels
+const maxExportSize = ref(0)
 const showSaveDropdown = ref(false)
 const saveButtonRef = ref(null)
+const saveExportScope = ref('current')
+const suggestionsCarouselRef = ref(null)
 
 // PDF page navigation
 const currentPdfPage = ref(1)
@@ -766,43 +695,24 @@ const deleteSavedPreset = (id, event) => {
 }
 
 // Expanded presets showing all combinations
-const suggestions = [
-  { id: 'confidential', label: 'Confidential', icon: 'visibility_off', color: '#ff6b6b', text: 'CONFIDENTIAL', size: 64, opacity: 0.6, pattern: false, rotation: -30, colorMode: 'solid', bgEnabled: false, borderEnabled: false },
-  { id: 'tiled', label: 'Tiled Pattern', icon: 'grid_view', color: '#60a5fa', text: 'DO NOT COPY', size: 32, opacity: 0.3, pattern: true, rotation: -45, colorMode: 'solid', patternSpacingX: 3, patternSpacingY: 2.5, patternSpacingUnit: 'lines', patternOffset: 1.5, bgEnabled: false, borderEnabled: false },
-  { id: 'identity', label: 'ID Security', icon: 'shield_person', color: '#8b5cf6', text: 'IDENTITY VERIFICATION', size: 24, opacity: 0.8, pattern: false, rotation: 0, colorMode: 'solid', bgEnabled: true, bgColor: '#000000', bgOpacity: 0.6, bgPadding: 10, bgRadius: 5, borderEnabled: false },
-  { id: 'brand', label: 'Studio Mark', icon: 'stylus', color: '#ffffff', text: '© Ethereal Studio', size: 32, opacity: 0.5, pattern: false, rotation: 0, colorMode: 'solid', bgEnabled: false, borderEnabled: false },
-  { id: 'draft', label: 'Draft Mode', icon: 'history_edu', color: '#a3a3a3', text: 'DRAFT', size: 100, opacity: 0.2, pattern: false, rotation: -45, colorMode: 'solid', bgEnabled: false, borderEnabled: false },
-  { id: 'gradient_sunset', label: 'Sunset Glow', icon: 'wb_sunset', color: '#ff6b6b', text: 'PREMIUM CONTENT', size: 48, opacity: 0.7, pattern: false, rotation: -25, colorMode: 'gradient', gradientStart: '#ff6b6b', gradientEnd: '#ffd93d', gradientAngle: 45, bgEnabled: false, borderEnabled: false },
-  { id: 'gradient_ocean', label: 'Ocean Wave', icon: 'waves', color: '#667eea', text: 'PROTECTED', size: 42, opacity: 0.6, pattern: false, rotation: -20, colorMode: 'gradient', gradientStart: '#667eea', gradientEnd: '#764ba2', gradientAngle: 90, bgEnabled: false, borderEnabled: false },
-  { id: 'gradient_neon', label: 'Neon Flash', icon: 'flash_on', color: '#00ff87', text: 'NEON', size: 56, opacity: 0.8, pattern: false, rotation: -15, colorMode: 'gradient', gradientStart: '#00ff87', gradientEnd: '#00d4ff', gradientAngle: 135, bgEnabled: false, borderEnabled: false },
-  { id: 'gradient_fire', label: 'Fire Burn', icon: 'local_fire_department', color: '#ff5722', text: 'FIRE', size: 52, opacity: 0.75, pattern: false, rotation: -20, colorMode: 'gradient', gradientStart: '#ff5722', gradientEnd: '#ffeb3b', gradientAngle: 60, bgEnabled: false, borderEnabled: false },
-  { id: 'gradient_galaxy', label: 'Galaxy', icon: 'rocket', color: '#9c27b0', text: 'GALAXY', size: 46, opacity: 0.65, pattern: false, rotation: -30, colorMode: 'gradient', gradientStart: '#9c27b0', gradientEnd: '#e91e63', gradientAngle: 180, bgEnabled: false, borderEnabled: false },
-  { id: 'gradient_arctic', label: 'Arctic', icon: 'ac_unit', color: '#00bcd4', text: 'ARCTIC', size: 44, opacity: 0.7, pattern: false, rotation: -25, colorMode: 'gradient', gradientStart: '#00bcd4', gradientEnd: '#2196f3', gradientAngle: 90, bgEnabled: false, borderEnabled: false },
-  { id: 'random_gradient', label: 'Random Gradients', icon: 'gradient', color: '#667eea', text: 'RANDOM', size: 40, opacity: 0.6, pattern: true, rotation: -45, colorMode: 'random_gradient', patternSpacingX: 3, patternSpacingY: 2.5, patternSpacingUnit: 'lines', patternOffset: 1.5, bgEnabled: false, borderEnabled: false },
-  { id: 'bg_shield', label: 'Shield Box', icon: 'shield', color: '#ffffff', text: 'VERIFIED', size: 36, opacity: 0.8, pattern: false, rotation: 0, colorMode: 'solid', bgEnabled: true, bgColor: '#0066ff', bgOpacity: 0.7, bgPadding: 15, bgRadius: 8, borderEnabled: true, borderColor: '#ffffff', borderWidth: 3, borderOpacity: 1, borderStyle: 'solid', borderRadius: 8 },
-  { id: 'diag_tiled', label: 'Diagonal Tiles', icon: 'texture', color: '#00ff00', text: 'SAMPLE', size: 28, opacity: 0.25, pattern: true, rotation: -45, colorMode: 'solid', patternSpacingX: 2.5, patternSpacingY: 2, patternSpacingUnit: 'lines', patternOffset: 1.25, bgEnabled: false, borderEnabled: false },
-  { id: 'random_scat', label: 'Random Scatter', icon: 'blur_on', color: '#ff00ff', text: 'PROOF', size: 30, opacity: 0.4, pattern: true, rotation: 0, colorMode: 'random', randomColorMin: '#ff00ff', randomColorMax: '#00ffff', randomOpacityMin: 0.3, randomOpacityMax: 0.7, patternSpacingX: 4, patternSpacingY: 3.5, patternSpacingUnit: 'lines', patternOffset: 2, patternRandomOffset: true, bgEnabled: false, borderEnabled: false },
-  { id: 'dashed_border', label: 'Dashed Frame', icon: 'border_style', color: '#ff9800', text: 'REVIEW COPY', size: 44, opacity: 0.85, pattern: false, rotation: 0, colorMode: 'solid', bgEnabled: true, bgColor: '#1a1a1a', bgOpacity: 0.5, bgPadding: 10, bgRadius: 6, borderEnabled: true, borderColor: '#ff9800', borderWidth: 3, borderOpacity: 1, borderStyle: 'dashed', borderRadius: 6 },
-  { id: 'pro_watermark', label: 'Pro Watermark', icon: 'workspace_premium', color: '#ffffff', text: '© PREMIUM', size: 50, opacity: 0.35, pattern: true, rotation: -45, colorMode: 'gradient', gradientStart: '#ffffff', gradientEnd: '#cccccc', gradientAngle: 45, patternSpacingX: 3.5, patternSpacingY: 3, patternSpacingUnit: 'lines', patternOffset: 1.75, bgEnabled: false, borderEnabled: false },
-  // Multi-line repeating text presets with line-based spacing
-  { id: 'multiline_security', label: 'Multi-Line Security', icon: 'text_rotate_up', color: '#ff0000', text: 'SECURE\nDOCUMENT\nVERIFIED', size: 36, opacity: 0.5, pattern: true, rotation: -30, colorMode: 'solid', patternSpacingX: 4, patternSpacingY: 3.5, patternSpacingUnit: 'lines', patternOffset: 2, bgEnabled: false, borderEnabled: false },
-  { id: 'multiline_draft', label: 'Multi-Line Draft', icon: 'lines', color: '#999999', text: 'DRAFT\nDRAFT\nDRAFT', size: 48, opacity: 0.15, pattern: true, rotation: -45, colorMode: 'solid', patternSpacingX: 5, patternSpacingY: 4, patternSpacingUnit: 'lines', patternOffset: 2.5, bgEnabled: false, borderEnabled: false },
-  { id: 'multiline_watermark', label: 'Multi-Line Mark', icon: 'format_line_spacing', color: '#00bfff', text: 'WATERMARK\nPROTECTED\nAUTHORIZED', size: 32, opacity: 0.4, pattern: true, rotation: -35, colorMode: 'gradient', gradientStart: '#00bfff', gradientEnd: '#1e90ff', gradientAngle: 45, patternSpacingX: 3.5, patternSpacingY: 3, patternSpacingUnit: 'lines', patternOffset: 1.75, bgEnabled: false, borderEnabled: false },
-  { id: 'multiline_sample', label: 'Multi-Line Sample', icon: 'view_array', color: '#32cd32', text: 'SAMPLE\nNOT FOR\nDISTRIBUTION', size: 28, opacity: 0.35, pattern: true, rotation: -40, colorMode: 'solid', patternSpacingX: 3, patternSpacingY: 2.5, patternSpacingUnit: 'lines', patternOffset: 1.5, bgEnabled: false, borderEnabled: false },
-  { id: 'multiline_confidential', label: 'Multi-Line Private', icon: 'lock_reset', color: '#ff69b4', text: 'PRIVATE\nCONFIDENTIAL\nDO NOT SHARE', size: 30, opacity: 0.45, pattern: true, rotation: -38, colorMode: 'solid', patternSpacingX: 4, patternSpacingY: 3.5, patternSpacingUnit: 'lines', patternOffset: 2, bgEnabled: false, borderEnabled: false },
-  { id: 'multiline_verified', label: 'Multi-Line Verified', icon: 'verified_user', color: '#ffd700', text: 'VERIFIED\nAUTHENTIC\nCERTIFIED', size: 34, opacity: 0.55, pattern: true, rotation: -32, colorMode: 'gradient', gradientStart: '#ffd700', gradientEnd: '#ff8c00', gradientAngle: 90, patternSpacingX: 3.5, patternSpacingY: 3, patternSpacingUnit: 'lines', patternOffset: 1.75, bgEnabled: false, borderEnabled: false },
-  { id: 'multiline_proof', label: 'Multi-Line Proof', icon: 'receipt_long', color: '#da70d6', text: 'PROOF\nOF CONCEPT\nNOT FINAL', size: 38, opacity: 0.3, pattern: true, rotation: -42, colorMode: 'solid', patternSpacingX: 4.5, patternSpacingY: 4, patternSpacingUnit: 'lines', patternOffset: 2.25, bgEnabled: false, borderEnabled: false },
-  { id: 'multiline_review', label: 'Multi-Line Review', icon: 'rate_review', color: '#20b2aa', text: 'FOR REVIEW\nPURPOSES\nONLY', size: 36, opacity: 0.4, pattern: true, rotation: -36, colorMode: 'solid', patternSpacingX: 3.5, patternSpacingY: 3, patternSpacingUnit: 'lines', patternOffset: 1.75, bgEnabled: false, borderEnabled: false },
-  // Business presets with token interpolation
-  { id: 'hostal_zamora', label: 'Hostal Zamora', icon: 'hotel', color: '#fbbf24', text: 'Solo para {business}\n{month_name} {year}', size: 38, opacity: 0.65, pattern: true, rotation: -30, colorMode: 'gradient', gradientStart: '#fbbf24', gradientEnd: '#f59e0b', gradientAngle: 45, patternSpacingX: 4, patternSpacingY: 3.5, patternSpacingUnit: 'lines', patternOffset: 2, bgEnabled: false, borderEnabled: false },
-  { id: 'business_exclusive', label: 'Uso Exclusivo', icon: 'shield_lock', color: '#ffffff', text: 'Uso exclusivo — {business}\n{date}', size: 32, opacity: 0.7, pattern: false, rotation: 0, colorMode: 'solid', bgEnabled: true, bgColor: '#0f172a', bgOpacity: 0.7, bgPadding: 12, bgRadius: 6, borderEnabled: true, borderColor: '#fbbf24', borderWidth: 2, borderOpacity: 1, borderStyle: 'solid', borderRadius: 6 },
-  { id: 'business_property', label: 'Propiedad de', icon: 'copyright', color: '#a78bfa', text: 'Propiedad de {business} · {year}', size: 34, opacity: 0.6, pattern: false, rotation: -20, colorMode: 'gradient', gradientStart: '#a78bfa', gradientEnd: '#7c3aed', gradientAngle: 90, bgEnabled: false, borderEnabled: false },
-  { id: 'business_month', label: 'Válido en Mes', icon: 'calendar_month', color: '#34d399', text: 'Válido solo en {month_name} {year}\n{business}', size: 30, opacity: 0.55, pattern: true, rotation: -35, colorMode: 'solid', patternSpacingX: 4.5, patternSpacingY: 4, patternSpacingUnit: 'lines', patternOffset: 2.25, bgEnabled: false, borderEnabled: false }
-]
+const suggestions = suggestionsData
+
+const visibleSuggestions = computed(() => suggestions.filter(s => !s.hidden))
+
+const scrollSuggestions = (dir) => {
+  if (suggestionsCarouselRef.value) {
+    suggestionsCarouselRef.value.scrollBy({ left: dir * 220, behavior: 'smooth' })
+  }
+}
 
 const applySuggestion = (sug) => {
+  // Save current config as custom preset before switching (skip defaults)
+  const isDefaultText = currentWatermark.text === 'Watermark' || !currentWatermark.text
+  if (!isDefaultText && savedPresets.value.length < MAX_SAVED_PRESETS) {
+    saveCurrentAsPreset()
+  }
   const suggestionConfig = {
-    text: renderPresetText(sug.text, { locale: locale.value, businessName: businessName.value }),
+    text: renderPresetText(sug.text, { locale: navigator.language || locale.value, businessName: businessName.value }),
     fontSize: sug.size,
     color: sug.color,
     opacity: sug.opacity,
@@ -829,12 +739,21 @@ const applySuggestion = (sug) => {
     borderOpacity: sug.borderOpacity || 1,
     borderStyle: sug.borderStyle || 'solid',
     borderRadius: sug.borderRadius || 0,
-    patternSpacingX: sug.patternSpacingX || 3,
-    patternSpacingY: sug.patternSpacingY || 2.5,
-    patternSpacingUnit: sug.patternSpacingUnit || 'lines',
-    patternOffset: sug.patternOffset || 1.5,
+    patternSpacingX: sug.patternSpacingX ?? 3,
+    patternSpacingY: sug.patternSpacingY ?? 2.5,
+    patternSpacingXUnit: sug.patternSpacingXUnit ?? sug.patternSpacingUnit ?? 'lines',
+    patternSpacingYUnit: sug.patternSpacingYUnit ?? sug.patternSpacingUnit ?? 'lines',
+    patternOffset: sug.patternOffset ?? 1.5,
+    patternGapTop: sug.patternGapTop ?? 0,
+    patternGapBottom: sug.patternGapBottom ?? 0,
     patternRandomOffset: sug.patternRandomOffset || false,
-    lineHeightMultiplier: sug.lineHeightMultiplier || 1.5
+    patternRotation: sug.patternRotation ?? 0,
+    lineHeightMultiplier: sug.lineHeightMultiplier ?? 1.5,
+    textCutout: sug.textCutout || false,
+    bgPaddingAuto: sug.bgPaddingAuto || false,
+    bgPaddingMult: sug.bgPaddingMult ?? 0.3,
+    bgRadiusAuto: sug.bgRadiusAuto || false,
+    bgRadiusMult: sug.bgRadiusMult ?? 0.15
   }
 
   saveToHistory()
@@ -855,6 +774,14 @@ const {
   updateCurrentWatermark,
   updateSelectedImages
 } = useWatermark()
+
+// Wrap resetAll to also clear uploader internal state
+const resetAllAndClear = () => {
+  uploaderRef.value?.clearAll()
+  resetAll()
+  currentImageIndex.value = 0
+  activeTab.value = 'files'
+}
 
 // Paged image navigation
 const currentImageIndex = ref(0)
@@ -952,6 +879,16 @@ historyIndex.value = 0
 const handleWatermarkUpdate = (newWatermark) => {
   saveToHistory()
   updateCurrentWatermark(newWatermark)
+}
+
+// Load a saved watermark into currentWatermark for editing
+const handleEditWatermark = (index) => {
+  const wm = watermarks.value[index]
+  if (wm) {
+    saveToHistory()
+    updateCurrentWatermark({ ...wm })
+    activeTab.value = 'config'
+  }
 }
 
 // Trigger file input from preview empty state
@@ -1116,40 +1053,43 @@ const applyWatermarksToCanvas = async (ctx, canvas) => {
     const startY = -totalHeight / 2 + lineHeight / 2
 
     if (wm.pattern) {
-      // Calculate spacing in pixels based on line height
-      const spacingUnit = wm.patternSpacingUnit || 'lines'
-      let stepX, stepY, offset
-
-      if (spacingUnit === 'lines') {
-        stepX = (wm.patternSpacingX || 3) * lineHeight
-        stepY = (wm.patternSpacingY || 2.5) * lineHeight
-        offset = (wm.patternOffset || 1.5) * lineHeight
-      } else {
-        stepX = wm.patternSpacingX || 150
-        stepY = wm.patternSpacingY || 100
-        offset = wm.patternOffset || 0
+      const toPixels = (val, unit) => {
+        if (unit === 'px') return val
+        if (unit === 'em') return val * fontSize
+        return val * lineHeight
       }
+      const unitX = wm.patternSpacingXUnit ?? wm.patternSpacingUnit ?? 'lines'
+      const unitY = wm.patternSpacingYUnit ?? wm.patternSpacingUnit ?? 'lines'
+      const gapTop = (wm.patternGapTop || 0) * lineHeight
+      const gapBottom = (wm.patternGapBottom || 0) * lineHeight
+      let stepX = toPixels(wm.patternSpacingX || 3, unitX)
+      let stepY = toPixels(wm.patternSpacingY || 2.5, unitY) + gapTop + gapBottom
+      const offset = (wm.patternOffset || 1.5) * lineHeight
+
+      const exportTextLines = (wm.text || '').split('\n')
+      let exportMaxTW = 0
+      exportTextLines.forEach(l => { const m = ctx.measureText(l); if (m.width > exportMaxTW) exportMaxTW = m.width })
+      stepX = Math.max(stepX, exportMaxTW + fontSize * 0.5)
+      stepY = Math.max(stepY, exportTextLines.length * lineHeight + lineHeight * 0.3)
 
       const useRandomOffset = wm.patternRandomOffset || false
-      const patternRotation = ((wm.patternRotation || wm.rotation || 0)) * Math.PI / 180
+      const patternRotation = (wm.patternRotation || wm.rotation || 0) * Math.PI / 180
 
       ctx.save()
       ctx.translate(canvas.width / 2, canvas.height / 2)
       ctx.rotate(patternRotation)
       ctx.translate(-canvas.width / 2, -canvas.height / 2)
 
-      let row = 0
-      for (let py = -stepY; py < canvas.height + stepY * 2; py += stepY) {
-        const rowOffset = useRandomOffset ? (Math.random() - 0.5) * offset * 2 : (row % 2 === 0 ? 0 : offset)
+      const diag = Math.ceil(Math.sqrt(canvas.width * canvas.width + canvas.height * canvas.height))
 
-        for (let px = -stepX + rowOffset; px < canvas.width + stepX * 2; px += stepX) {
-          const adjustedX = px - canvas.width / 2
-          const adjustedY = py - canvas.height / 2
-          drawSingleWatermarkOnCanvas(ctx, wm, adjustedX, adjustedY, fontSize, 0, textColor, textOpacity, lineHeight)
+      let row = 0
+      for (let py = -diag; py < canvas.height + diag; py += stepY) {
+        const rowOffset = useRandomOffset ? (Math.random() - 0.5) * offset * 2 : (row % 2 === 0 ? 0 : offset)
+        for (let px = -diag + rowOffset; px < canvas.width + diag; px += stepX) {
+          drawSingleWatermarkOnCanvas(ctx, wm, px, py, fontSize, 0, textColor, textOpacity, lineHeight)
         }
         row++
       }
-
       ctx.restore()
     } else {
       const rotation = (wm.rotation || 0) * Math.PI / 180
@@ -1160,7 +1100,6 @@ const applyWatermarksToCanvas = async (ctx, canvas) => {
 
 const drawSingleWatermarkOnCanvas = (ctx, wm, x, y, fontSize, rotation, textColor, textOpacity, lineHeight) => {
   ctx.save()
-
   ctx.translate(x, y)
   ctx.rotate(rotation)
 
@@ -1168,69 +1107,102 @@ const drawSingleWatermarkOnCanvas = (ctx, wm, x, y, fontSize, rotation, textColo
   const totalHeight = textLines.length * lineHeight
   const startY = -totalHeight / 2 + lineHeight / 2
 
-  // Measure text for background/border
   let maxTextWidth = 0
   textLines.forEach(line => {
-    const metrics = ctx.measureText(line)
-    if (metrics.width > maxTextWidth) maxTextWidth = metrics.width
+    const m = ctx.measureText(line)
+    if (m.width > maxTextWidth) maxTextWidth = m.width
   })
 
   const textWidth = maxTextWidth
   const textHeight = totalHeight
-  const padding = wm.bgPadding || 10
+  const padding = wm.bgPaddingAuto ? fontSize * (wm.bgPaddingMult || 0.3) : (wm.bgPadding ?? 10)
+  const bgRadius = wm.bgRadiusAuto ? fontSize * (wm.bgRadiusMult || 0.15) : (wm.bgRadius ?? 0)
+  const bw = wm.borderWidth || 2
 
-  // Draw background if enabled
+  const bgX = -textWidth / 2 - padding
+  const bgY = -textHeight / 2 - padding
+  const bgW = textWidth + padding * 2
+  const bgH = textHeight + padding * 2
+
+  // Cutout mode
+  if (wm.textCutout && wm.bgEnabled) {
+    const pad = Math.max(padding, bw) + fontSize
+    const offW = bgW + pad * 2
+    const offH = bgH + pad * 2
+    const off = document.createElement('canvas')
+    off.width = offW
+    off.height = offH
+    const oc = off.getContext('2d')
+    oc.font = ctx.font
+    oc.textBaseline = 'middle'
+    oc.textAlign = 'center'
+    const ox = offW / 2
+    const oy = offH / 2
+    oc.globalAlpha = wm.bgOpacity ?? 0.5
+    oc.fillStyle = wm.bgColor || '#000000'
+    drawRoundedRectOnCanvas(oc, ox + bgX, oy + bgY, bgW, bgH, bgRadius)
+    oc.fill()
+    oc.globalCompositeOperation = 'destination-out'
+    oc.globalAlpha = 1
+    textLines.forEach((line, i) => oc.fillText(line, ox, oy + startY + i * lineHeight))
+    ctx.drawImage(off, -offW / 2, -offH / 2)
+    if (wm.borderEnabled) drawExportBorder(ctx, wm, bgX, bgY, bgW, bgH, bw, bgRadius, fontSize)
+    ctx.restore()
+    return
+  }
+
+  // Normal background
   if (wm.bgEnabled) {
     ctx.save()
     ctx.fillStyle = wm.bgColor || '#000000'
-    ctx.globalAlpha = wm.bgOpacity || 0.5
-
-    const bgX = -textWidth / 2 - padding
-    const bgY = -textHeight / 2 - padding
-    const bgWidth = textWidth + padding * 2
-    const bgHeight = textHeight + padding * 2
-    const radius = wm.bgRadius || 0
-
-    drawRoundedRectOnCanvas(ctx, bgX, bgY, bgWidth, bgHeight, radius)
+    ctx.globalAlpha = wm.bgOpacity ?? 0.5
+    drawRoundedRectOnCanvas(ctx, bgX, bgY, bgW, bgH, bgRadius)
     ctx.fill()
     ctx.restore()
   }
 
-  // Draw border if enabled
+  // Border
   if (wm.borderEnabled) {
-    ctx.save()
-    ctx.strokeStyle = wm.borderColor || '#ffffff'
-    ctx.globalAlpha = wm.borderOpacity || 1
-    ctx.lineWidth = wm.borderWidth || 2
-
-    if (wm.borderStyle === 'dashed') {
-      ctx.setLineDash([fontSize * 0.3, fontSize * 0.2])
-    } else if (wm.borderStyle === 'dotted') {
-      ctx.setLineDash([fontSize * 0.1, fontSize * 0.15])
-    }
-
-    const borderX = -textWidth / 2 - padding - wm.borderWidth
-    const borderY = -textHeight / 2 - padding - wm.borderWidth
-    const borderWidth = textWidth + (padding + wm.borderWidth) * 2
-    const borderHeight = textHeight + (padding + wm.borderWidth) * 2
-    const borderRadius = wm.borderRadius || 0
-
-    drawRoundedRectOnCanvas(ctx, borderX, borderY, borderWidth, borderHeight, borderRadius)
-    ctx.stroke()
-    ctx.restore()
+    drawExportBorder(ctx, wm, bgX, bgY, bgW, bgH, bw, bgRadius, fontSize)
   }
 
-  // Draw multi-line text
+  // Text
   ctx.globalAlpha = textOpacity
   ctx.fillStyle = textColor
   ctx.textBaseline = 'middle'
   ctx.textAlign = 'center'
+  textLines.forEach((line, i) => ctx.fillText(line, 0, startY + i * lineHeight))
+  ctx.restore()
+}
 
-  textLines.forEach((line, index) => {
-    const lineY = startY + (index * lineHeight)
-    ctx.fillText(line, 0, lineY)
-  })
-
+const drawExportBorder = (ctx, wm, bgX, bgY, bgW, bgH, bw, radius, fontSize) => {
+  ctx.save()
+  ctx.strokeStyle = wm.borderColor || '#ffffff'
+  ctx.globalAlpha = wm.borderOpacity ?? 1
+  if (wm.borderStyle === 'dashed') {
+    ctx.setLineDash([fontSize * 0.3, fontSize * 0.2])
+    ctx.lineWidth = bw
+    drawRoundedRectOnCanvas(ctx, bgX - bw / 2, bgY - bw / 2, bgW + bw, bgH + bw, radius)
+    ctx.stroke()
+  } else if (wm.borderStyle === 'dotted') {
+    ctx.setLineDash([fontSize * 0.1, fontSize * 0.15])
+    ctx.lineWidth = bw
+    drawRoundedRectOnCanvas(ctx, bgX - bw / 2, bgY - bw / 2, bgW + bw, bgH + bw, radius)
+    ctx.stroke()
+  } else if (wm.borderStyle === 'double') {
+    const gap = Math.max(2, bw / 3)
+    ctx.lineWidth = gap
+    ctx.setLineDash([])
+    drawRoundedRectOnCanvas(ctx, bgX - bw, bgY - bw, bgW + bw * 2, bgH + bw * 2, radius + bw)
+    ctx.stroke()
+    drawRoundedRectOnCanvas(ctx, bgX + gap, bgY + gap, bgW - gap * 2, bgH - gap * 2, Math.max(0, radius - gap))
+    ctx.stroke()
+  } else {
+    ctx.lineWidth = bw
+    ctx.setLineDash([])
+    drawRoundedRectOnCanvas(ctx, bgX - bw / 2, bgY - bw / 2, bgW + bw, bgH + bw, radius)
+    ctx.stroke()
+  }
   ctx.restore()
 }
 
@@ -1268,13 +1240,6 @@ const hexToRgbExport = (hex) => {
   } : { r: 255, g: 255, b: 255 }
 }
 
-// Batch process — routes through the same pipeline as single export
-const batchProcess = async (format) => {
-  showBatchModal.value = false
-  exportFormat.value = format
-  showBatchModal.value = false
-  await exportImage(true)
-}
 
 // Restore state from localStorage (Android fix)
 const restoreState = () => {
