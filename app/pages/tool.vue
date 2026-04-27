@@ -222,6 +222,14 @@
             Smart Suggestions
           </h4>
           <div class="flex items-center gap-1">
+            <button
+              @click="saveCurrentAsPresetManual"
+              class="p-1 hover:bg-white/10 rounded-lg transition-all text-on-surface-variant hover:text-primary"
+              title="Save current config as preset (also logs to console)"
+            >
+              <span class="material-symbols-outlined text-base">bookmark_add</span>
+            </button>
+            <div class="w-px h-4 bg-white/10 mx-0.5"></div>
             <button @click="scrollSuggestions(-1)" class="p-1 hover:bg-white/10 rounded-lg transition-all text-on-surface-variant hover:text-on-surface">
               <span class="material-symbols-outlined text-base">chevron_left</span>
             </button>
@@ -669,18 +677,24 @@ const saveCurrentAsPreset = () => {
     ...JSON.parse(JSON.stringify(currentWatermark)),
     savedAt: Date.now()
   }
-  
+
   savedPresets.value.unshift(preset)
-  
+
   if (savedPresets.value.length > MAX_SAVED_PRESETS) {
     savedPresets.value = savedPresets.value.slice(0, MAX_SAVED_PRESETS)
   }
-  
+
   try {
     localStorage.setItem('markshield_presets', JSON.stringify(savedPresets.value))
   } catch (e) {
     console.warn('Failed to save preset:', e)
   }
+}
+
+// Manual save from suggestion bar — also logs full config so user can copy to presets.json
+const saveCurrentAsPresetManual = () => {
+  saveCurrentAsPreset()
+  console.log('[MarkShield] Preset config (copy into data/presets.json):\n' + JSON.stringify({ ...currentWatermark, id: 'preset_' + Date.now(), label: currentWatermark.text || 'Custom', size: currentWatermark.fontSize }, null, 2))
 }
 
 // Delete a saved preset
@@ -744,16 +758,46 @@ const applySuggestion = (sug) => {
     patternSpacingXUnit: sug.patternSpacingXUnit ?? sug.patternSpacingUnit ?? 'lines',
     patternSpacingYUnit: sug.patternSpacingYUnit ?? sug.patternSpacingUnit ?? 'lines',
     patternOffset: sug.patternOffset ?? 1.5,
-    patternGapTop: sug.patternGapTop ?? 0,
-    patternGapBottom: sug.patternGapBottom ?? 0,
+    patternGapY: sug.patternGapY ?? (sug.patternGapTop ?? 0) + (sug.patternGapBottom ?? 0),
     patternRandomOffset: sug.patternRandomOffset || false,
     patternRotation: sug.patternRotation ?? 0,
     lineHeightMultiplier: sug.lineHeightMultiplier ?? 1.5,
     textCutout: sug.textCutout || false,
+    bgColorMode: sug.bgColorMode || 'solid',
+    bgGradientStart: sug.bgGradientStart || '#333333',
+    bgGradientEnd: sug.bgGradientEnd || '#000000',
+    bgGradientAngle: sug.bgGradientAngle ?? 0,
+    bgRandomColorMin: sug.bgRandomColorMin || '#000000',
+    bgRandomColorMax: sug.bgRandomColorMax || '#333333',
     bgPaddingAuto: sug.bgPaddingAuto || false,
     bgPaddingMult: sug.bgPaddingMult ?? 0.3,
     bgRadiusAuto: sug.bgRadiusAuto || false,
-    bgRadiusMult: sug.bgRadiusMult ?? 0.15
+    bgRadiusMult: sug.bgRadiusMult ?? 0.15,
+    borderColorMode: sug.borderColorMode || 'solid',
+    borderGradientStart: sug.borderGradientStart || '#ffffff',
+    borderGradientEnd: sug.borderGradientEnd || '#cccccc',
+    borderGradientAngle: sug.borderGradientAngle ?? 0,
+    borderRandomColorMin: sug.borderRandomColorMin || '#cccccc',
+    borderRandomColorMax: sug.borderRandomColorMax || '#ffffff',
+    randomizeOpacity: sug.randomizeOpacity || false,
+    opacityMin: sug.opacityMin ?? 0.3,
+    opacityMax: sug.opacityMax ?? 0.8,
+    randomizeSize: sug.randomizeSize || false,
+    sizeMin: sug.sizeMin ?? 16,
+    sizeMax: sug.sizeMax ?? 64,
+    randomizeRotation: sug.randomizeRotation || false,
+    rotationMin: sug.rotationMin ?? -30,
+    rotationMax: sug.rotationMax ?? 30,
+    textStrokeEnabled: sug.textStrokeEnabled || false,
+    textStrokeColorMode: sug.textStrokeColorMode || 'solid',
+    textStrokeColor: sug.textStrokeColor || '#000000',
+    textStrokeGradientStart: sug.textStrokeGradientStart || '#000000',
+    textStrokeGradientEnd: sug.textStrokeGradientEnd || '#555555',
+    textStrokeGradientAngle: sug.textStrokeGradientAngle ?? 45,
+    textStrokeRandomColorMin: sug.textStrokeRandomColorMin || '#000000',
+    textStrokeRandomColorMax: sug.textStrokeRandomColorMax || '#555555',
+    textStrokeWidth: sug.textStrokeWidth ?? 2,
+    textStrokeOpacity: sug.textStrokeOpacity ?? 1,
   }
 
   saveToHistory()
@@ -875,9 +919,13 @@ watch(historyIndex, (newIndex) => {
 history.value.push(JSON.parse(JSON.stringify(currentWatermark)))
 historyIndex.value = 0
 
-// Handle watermark updates with history tracking
+// Debounce history saves so rapid slider drags don't flood the history stack
+let _historyBatchTimer = null
 const handleWatermarkUpdate = (newWatermark) => {
-  saveToHistory()
+  // Capture the pre-change state only once at the start of a burst
+  if (_historyBatchTimer === null) saveToHistory()
+  clearTimeout(_historyBatchTimer)
+  _historyBatchTimer = setTimeout(() => { _historyBatchTimer = null }, 600)
   updateCurrentWatermark(newWatermark)
 }
 
@@ -1060,10 +1108,9 @@ const applyWatermarksToCanvas = async (ctx, canvas) => {
       }
       const unitX = wm.patternSpacingXUnit ?? wm.patternSpacingUnit ?? 'lines'
       const unitY = wm.patternSpacingYUnit ?? wm.patternSpacingUnit ?? 'lines'
-      const gapTop = (wm.patternGapTop || 0) * lineHeight
-      const gapBottom = (wm.patternGapBottom || 0) * lineHeight
+      const gapY = ((wm.patternGapY ?? wm.patternGapTop ?? 0) + (wm.patternGapBottom ?? 0)) * lineHeight
       let stepX = toPixels(wm.patternSpacingX || 3, unitX)
-      let stepY = toPixels(wm.patternSpacingY || 2.5, unitY) + gapTop + gapBottom
+      let stepY = toPixels(wm.patternSpacingY || 2.5, unitY) + gapY
       const offset = (wm.patternOffset || 1.5) * lineHeight
 
       const exportTextLines = (wm.text || '').split('\n')
@@ -1083,9 +1130,12 @@ const applyWatermarksToCanvas = async (ctx, canvas) => {
       const diag = Math.ceil(Math.sqrt(canvas.width * canvas.width + canvas.height * canvas.height))
 
       let row = 0
+      let tileCount = 0
       for (let py = -diag; py < canvas.height + diag; py += stepY) {
+        if (tileCount > 4000) break
         const rowOffset = useRandomOffset ? (Math.random() - 0.5) * offset * 2 : (row % 2 === 0 ? 0 : offset)
         for (let px = -diag + rowOffset; px < canvas.width + diag; px += stepX) {
+          if (tileCount++ > 4000) break
           drawSingleWatermarkOnCanvas(ctx, wm, px, py, fontSize, 0, textColor, textOpacity, lineHeight)
         }
         row++
@@ -1098,14 +1148,46 @@ const applyWatermarksToCanvas = async (ctx, canvas) => {
   }
 }
 
+const computeExportFillStyle = (ctx, mode, solid, gradStart, gradEnd, gradAngle, randMin, randMax, w, h) => {
+  if (mode === 'gradient') {
+    const a = (gradAngle || 0) * Math.PI / 180
+    const cx = 0, cy = 0, dx = Math.cos(a) * w / 2, dy = Math.sin(a) * h / 2
+    const g = ctx.createLinearGradient(cx - dx, cy - dy, cx + dx, cy + dy)
+    g.addColorStop(0, gradStart || '#333333')
+    g.addColorStop(1, gradEnd || '#000000')
+    return g
+  }
+  if (mode === 'random') return getRandomExportColor(randMin || '#000000', randMax || '#333333')
+  return solid || '#000000'
+}
+
 const drawSingleWatermarkOnCanvas = (ctx, wm, x, y, fontSize, rotation, textColor, textOpacity, lineHeight) => {
   ctx.save()
+
+  // Per-tile random size
+  let fs = fontSize
+  if (wm.randomizeSize) {
+    const minS = (wm.sizeMin || 16) * (ctx.canvas.width / 1000)
+    const maxS = (wm.sizeMax || 64) * (ctx.canvas.width / 1000)
+    fs = minS + Math.random() * (maxS - minS)
+    ctx.font = `bold ${fs}px Inter, sans-serif`
+  }
+
+  // Per-tile random rotation
+  let rot = rotation
+  if (wm.randomizeRotation) {
+    const mn = (wm.rotationMin ?? -30) * Math.PI / 180
+    const mx = (wm.rotationMax ?? 30) * Math.PI / 180
+    rot = mn + Math.random() * (mx - mn)
+  }
+
   ctx.translate(x, y)
-  ctx.rotate(rotation)
+  ctx.rotate(rot)
 
   const textLines = (wm.text || 'Watermark').split('\n')
-  const totalHeight = textLines.length * lineHeight
-  const startY = -totalHeight / 2 + lineHeight / 2
+  const lh = fs * (wm.lineHeightMultiplier || 1.5)
+  const totalHeight = textLines.length * lh
+  const startY = -totalHeight / 2 + lh / 2
 
   let maxTextWidth = 0
   textLines.forEach(line => {
@@ -1115,8 +1197,8 @@ const drawSingleWatermarkOnCanvas = (ctx, wm, x, y, fontSize, rotation, textColo
 
   const textWidth = maxTextWidth
   const textHeight = totalHeight
-  const padding = wm.bgPaddingAuto ? fontSize * (wm.bgPaddingMult || 0.3) : (wm.bgPadding ?? 10)
-  const bgRadius = wm.bgRadiusAuto ? fontSize * (wm.bgRadiusMult || 0.15) : (wm.bgRadius ?? 0)
+  const padding = wm.bgPaddingAuto ? fs * (wm.bgPaddingMult || 0.3) : (wm.bgPadding ?? 10)
+  const bgRadius = wm.bgRadiusAuto ? fs * (wm.bgRadiusMult || 0.15) : (wm.bgRadius ?? 0)
   const bw = wm.borderWidth || 2
 
   const bgX = -textWidth / 2 - padding
@@ -1124,29 +1206,48 @@ const drawSingleWatermarkOnCanvas = (ctx, wm, x, y, fontSize, rotation, textColo
   const bgW = textWidth + padding * 2
   const bgH = textHeight + padding * 2
 
+  // Per-tile random opacity
+  let tOpacity = wm.randomizeOpacity
+    ? (wm.opacityMin ?? 0.3) + Math.random() * ((wm.opacityMax ?? 0.8) - (wm.opacityMin ?? 0.3))
+    : textOpacity
+
   // Cutout mode
   if (wm.textCutout && wm.bgEnabled) {
-    const pad = Math.max(padding, bw) + fontSize
+    const pad = Math.max(padding, bw) + fs
     const offW = bgW + pad * 2
     const offH = bgH + pad * 2
     const off = document.createElement('canvas')
-    off.width = offW
-    off.height = offH
+    off.width = offW; off.height = offH
     const oc = off.getContext('2d')
     oc.font = ctx.font
     oc.textBaseline = 'middle'
     oc.textAlign = 'center'
-    const ox = offW / 2
-    const oy = offH / 2
+    const ox = offW / 2, oy = offH / 2
     oc.globalAlpha = wm.bgOpacity ?? 0.5
-    oc.fillStyle = wm.bgColor || '#000000'
+    oc.fillStyle = computeExportFillStyle(oc, wm.bgColorMode, wm.bgColor, wm.bgGradientStart, wm.bgGradientEnd, wm.bgGradientAngle, wm.bgRandomColorMin, wm.bgRandomColorMax, bgW, bgH)
     drawRoundedRectOnCanvas(oc, ox + bgX, oy + bgY, bgW, bgH, bgRadius)
     oc.fill()
     oc.globalCompositeOperation = 'destination-out'
     oc.globalAlpha = 1
-    textLines.forEach((line, i) => oc.fillText(line, ox, oy + startY + i * lineHeight))
+    textLines.forEach((line, i) => oc.fillText(line, ox, oy + startY + i * lh))
     ctx.drawImage(off, -offW / 2, -offH / 2)
-    if (wm.borderEnabled) drawExportBorder(ctx, wm, bgX, bgY, bgW, bgH, bw, bgRadius, fontSize)
+    ctx.textBaseline = 'middle'
+    ctx.textAlign = 'center'
+    if (tOpacity > 0) {
+      if (wm.textStrokeEnabled) {
+        ctx.save()
+        ctx.globalAlpha = tOpacity * (wm.textStrokeOpacity ?? 1)
+        ctx.strokeStyle = computeExportFillStyle(ctx, wm.textStrokeColorMode, wm.textStrokeColor, wm.textStrokeGradientStart, wm.textStrokeGradientEnd, wm.textStrokeGradientAngle, wm.textStrokeRandomColorMin, wm.textStrokeRandomColorMax, maxTextWidth, totalHeight)
+        ctx.lineWidth = (wm.textStrokeWidth ?? 2) * (fs / 32)
+        ctx.lineJoin = 'round'
+        textLines.forEach((line, i) => ctx.strokeText(line, 0, startY + i * lh))
+        ctx.restore()
+      }
+      ctx.globalAlpha = tOpacity
+      ctx.fillStyle = wm.color || '#ffffff'
+      textLines.forEach((line, i) => ctx.fillText(line, 0, startY + i * lh))
+    }
+    if (wm.borderEnabled) drawExportBorder(ctx, wm, bgX, bgY, bgW, bgH, bw, bgRadius, fs)
     ctx.restore()
     return
   }
@@ -1154,30 +1255,38 @@ const drawSingleWatermarkOnCanvas = (ctx, wm, x, y, fontSize, rotation, textColo
   // Normal background
   if (wm.bgEnabled) {
     ctx.save()
-    ctx.fillStyle = wm.bgColor || '#000000'
     ctx.globalAlpha = wm.bgOpacity ?? 0.5
+    ctx.fillStyle = computeExportFillStyle(ctx, wm.bgColorMode, wm.bgColor, wm.bgGradientStart, wm.bgGradientEnd, wm.bgGradientAngle, wm.bgRandomColorMin, wm.bgRandomColorMax, bgW, bgH)
     drawRoundedRectOnCanvas(ctx, bgX, bgY, bgW, bgH, bgRadius)
     ctx.fill()
     ctx.restore()
   }
 
-  // Border
-  if (wm.borderEnabled) {
-    drawExportBorder(ctx, wm, bgX, bgY, bgW, bgH, bw, bgRadius, fontSize)
-  }
+  if (wm.borderEnabled) drawExportBorder(ctx, wm, bgX, bgY, bgW, bgH, bw, bgRadius, fs)
 
-  // Text
-  ctx.globalAlpha = textOpacity
-  ctx.fillStyle = textColor
   ctx.textBaseline = 'middle'
   ctx.textAlign = 'center'
-  textLines.forEach((line, i) => ctx.fillText(line, 0, startY + i * lineHeight))
+
+  // Text stroke drawn before fill so fill covers inward bleed
+  if (wm.textStrokeEnabled) {
+    ctx.save()
+    ctx.globalAlpha = tOpacity * (wm.textStrokeOpacity ?? 1)
+    ctx.strokeStyle = computeExportFillStyle(ctx, wm.textStrokeColorMode, wm.textStrokeColor, wm.textStrokeGradientStart, wm.textStrokeGradientEnd, wm.textStrokeGradientAngle, wm.textStrokeRandomColorMin, wm.textStrokeRandomColorMax, maxTextWidth, totalHeight)
+    ctx.lineWidth = (wm.textStrokeWidth ?? 2) * (fs / 32)
+    ctx.lineJoin = 'round'
+    textLines.forEach((line, i) => ctx.strokeText(line, 0, startY + i * lh))
+    ctx.restore()
+  }
+
+  ctx.globalAlpha = tOpacity
+  ctx.fillStyle = textColor
+  textLines.forEach((line, i) => ctx.fillText(line, 0, startY + i * lh))
   ctx.restore()
 }
 
 const drawExportBorder = (ctx, wm, bgX, bgY, bgW, bgH, bw, radius, fontSize) => {
   ctx.save()
-  ctx.strokeStyle = wm.borderColor || '#ffffff'
+  ctx.strokeStyle = computeExportFillStyle(ctx, wm.borderColorMode, wm.borderColor, wm.borderGradientStart, wm.borderGradientEnd, wm.borderGradientAngle, wm.borderRandomColorMin, wm.borderRandomColorMax, bgW, bgH)
   ctx.globalAlpha = wm.borderOpacity ?? 1
   if (wm.borderStyle === 'dashed') {
     ctx.setLineDash([fontSize * 0.3, fontSize * 0.2])

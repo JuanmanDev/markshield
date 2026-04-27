@@ -99,7 +99,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 
 const { t } = useI18n()
 const previewContainer = ref(null)
@@ -395,10 +395,9 @@ const drawWatermark = (ctx, wm, canvas) => {
     }
     const unitX = wm.patternSpacingXUnit ?? wm.patternSpacingUnit ?? 'lines'
     const unitY = wm.patternSpacingYUnit ?? wm.patternSpacingUnit ?? 'lines'
-    const gapTop = (wm.patternGapTop || 0) * lineHeight
-    const gapBottom = (wm.patternGapBottom || 0) * lineHeight
+    const gapY = ((wm.patternGapY ?? wm.patternGapTop ?? 0) + (wm.patternGapBottom ?? 0)) * lineHeight
     let stepX = toPixels(wm.patternSpacingX || 3, unitX)
-    let stepY = toPixels(wm.patternSpacingY || 2.5, unitY) + gapTop + gapBottom
+    let stepY = toPixels(wm.patternSpacingY || 2.5, unitY) + gapY
     const offset = (wm.patternOffset || 1.5) * lineHeight
 
     // Enforce minimum spacing so text instances don't overlap
@@ -418,12 +417,15 @@ const drawWatermark = (ctx, wm, canvas) => {
     const diag = Math.ceil(Math.sqrt(canvas.width * canvas.width + canvas.height * canvas.height))
 
     let row = 0
+    let tileCount = 0
     for (let py = -diag; py < canvas.height + diag; py += stepY) {
+      if (tileCount > 1500) break
       const rowOffset = useRandomOffset
         ? (Math.random() - 0.5) * offset * 2
         : (row % 2 === 0 ? 0 : offset)
 
       for (let px = -diag + rowOffset; px < canvas.width + diag; px += stepX) {
+        if (tileCount++ > 1500) break
         drawSingleWatermark(ctx, wm, px, py, fontSize, 0, canvas)
       }
       row++
@@ -438,13 +440,46 @@ const drawWatermark = (ctx, wm, canvas) => {
   ctx.restore()
 }
 
+// Helper: compute fill style (solid/gradient/random) for a rect
+const computeFillStyle = (ctx, mode, solid, gradStart, gradEnd, gradAngle, randMin, randMax, w, h) => {
+  if (mode === 'gradient') {
+    const a = (gradAngle || 0) * Math.PI / 180
+    const cx = 0, cy = 0
+    const dx = Math.cos(a) * w / 2, dy = Math.sin(a) * h / 2
+    const g = ctx.createLinearGradient(cx - dx, cy - dy, cx + dx, cy + dy)
+    g.addColorStop(0, gradStart || '#333333')
+    g.addColorStop(1, gradEnd || '#000000')
+    return g
+  }
+  if (mode === 'random') return getRandomColor(randMin || '#000000', randMax || '#333333')
+  return solid || '#000000'
+}
+
 const drawSingleWatermark = (ctx, wm, x, y, fontSize, rotation, canvas) => {
   ctx.save()
+
+  // Per-tile random size
+  let fs = fontSize
+  if (wm.randomizeSize) {
+    const minS = (wm.sizeMin || 16) * (canvas.width / 1000)
+    const maxS = (wm.sizeMax || 64) * (canvas.width / 1000)
+    fs = minS + Math.random() * (maxS - minS)
+    ctx.font = `bold ${fs}px Inter, sans-serif`
+  }
+
+  // Per-tile random rotation
+  let rot = rotation
+  if (wm.randomizeRotation) {
+    const mn = (wm.rotationMin ?? -30) * Math.PI / 180
+    const mx = (wm.rotationMax ?? 30) * Math.PI / 180
+    rot = mn + Math.random() * (mx - mn)
+  }
+
   ctx.translate(x, y)
-  ctx.rotate(rotation)
+  ctx.rotate(rot)
 
   const textLines = (wm.text || 'Watermark').split('\n')
-  const lineHeight = fontSize * (wm.lineHeightMultiplier || 1.5)
+  const lineHeight = fs * (wm.lineHeightMultiplier || 1.5)
   const totalHeight = textLines.length * lineHeight
   const startY = -totalHeight / 2 + lineHeight / 2
 
@@ -456,8 +491,8 @@ const drawSingleWatermark = (ctx, wm, x, y, fontSize, rotation, canvas) => {
 
   const textWidth = maxTextWidth
   const textHeight = totalHeight
-  const padding = wm.bgPaddingAuto ? fontSize * (wm.bgPaddingMult || 0.3) : (wm.bgPadding ?? 10)
-  const bgRadius = wm.bgRadiusAuto ? fontSize * (wm.bgRadiusMult || 0.15) : (wm.bgRadius ?? 0)
+  const padding = wm.bgPaddingAuto ? fs * (wm.bgPaddingMult || 0.3) : (wm.bgPadding ?? 10)
+  const bgRadius = wm.bgRadiusAuto ? fs * (wm.bgRadiusMult || 0.15) : (wm.bgRadius ?? 0)
   const bw = wm.borderWidth || 2
 
   const bgX = -textWidth / 2 - padding
@@ -465,41 +500,56 @@ const drawSingleWatermark = (ctx, wm, x, y, fontSize, rotation, canvas) => {
   const bgW = textWidth + padding * 2
   const bgH = textHeight + padding * 2
 
-  // Cutout mode: render background with text hole using offscreen canvas
+  // Per-tile random opacity
+  let textOpacity = wm.randomizeOpacity
+    ? (wm.opacityMin ?? 0.3) + Math.random() * ((wm.opacityMax ?? 0.8) - (wm.opacityMin ?? 0.3))
+    : (wm.opacity ?? 0.7)
+
+  // Cutout mode: background box with text-shaped hole; opacity blends text over hole
   if (wm.textCutout && wm.bgEnabled) {
-    const pad = Math.max(padding, bw) + fontSize
+    const pad = Math.max(padding, bw) + fs
     const offW = bgW + pad * 2
     const offH = bgH + pad * 2
     const off = document.createElement('canvas')
-    off.width = offW
-    off.height = offH
+    off.width = offW; off.height = offH
     const oc = off.getContext('2d')
     oc.font = ctx.font
     oc.textBaseline = 'middle'
     oc.textAlign = 'center'
+    const ox = offW / 2, oy = offH / 2
 
-    const ox = offW / 2
-    const oy = offH / 2
-
-    // Draw background
+    // Background fill
     oc.globalAlpha = wm.bgOpacity ?? 0.5
-    oc.fillStyle = wm.bgColor || '#000000'
+    oc.fillStyle = computeFillStyle(oc, wm.bgColorMode, wm.bgColor, wm.bgGradientStart, wm.bgGradientEnd, wm.bgGradientAngle, wm.bgRandomColorMin, wm.bgRandomColorMax, bgW, bgH)
     drawRoundedRectOnCtx(oc, ox + bgX, oy + bgY, bgW, bgH, bgRadius)
     oc.fill()
 
     // Punch text hole
     oc.globalCompositeOperation = 'destination-out'
     oc.globalAlpha = 1
-    textLines.forEach((line, i) => {
-      oc.fillText(line, ox, oy + startY + i * lineHeight)
-    })
+    textLines.forEach((line, i) => oc.fillText(line, ox, oy + startY + i * lineHeight))
 
     ctx.drawImage(off, -offW / 2, -offH / 2)
 
-    // Draw border over the offscreen result
-    if (wm.borderEnabled) {
-      drawBorderOnCtx(ctx, wm, bgX, bgY, bgW, bgH, bw, bgRadius, fontSize)
+    ctx.textBaseline = 'middle'
+    ctx.textAlign = 'center'
+    // Blend text on top if opacity > 0
+    if (textOpacity > 0) {
+      if (wm.textStrokeEnabled) {
+        ctx.save()
+        ctx.globalAlpha = textOpacity * (wm.textStrokeOpacity ?? 1)
+        ctx.strokeStyle = computeFillStyle(ctx, wm.textStrokeColorMode, wm.textStrokeColor, wm.textStrokeGradientStart, wm.textStrokeGradientEnd, wm.textStrokeGradientAngle, wm.textStrokeRandomColorMin, wm.textStrokeRandomColorMax, textWidth, textHeight)
+        ctx.lineWidth = (wm.textStrokeWidth ?? 2) * (fs / 32)
+        ctx.lineJoin = 'round'
+        textLines.forEach((line, i) => ctx.strokeText(line, 0, startY + i * lineHeight))
+        ctx.restore()
+      }
+      ctx.globalAlpha = textOpacity
+      ctx.fillStyle = wm.color || '#ffffff'
+      textLines.forEach((line, i) => ctx.fillText(line, 0, startY + i * lineHeight))
     }
+
+    if (wm.borderEnabled) drawBorderOnCtx(ctx, wm, bgX, bgY, bgW, bgH, bw, bgRadius, fs)
     ctx.restore()
     return
   }
@@ -507,29 +557,21 @@ const drawSingleWatermark = (ctx, wm, x, y, fontSize, rotation, canvas) => {
   // Normal background
   if (wm.bgEnabled) {
     ctx.save()
-    ctx.fillStyle = wm.bgColor || '#000000'
     ctx.globalAlpha = wm.bgOpacity ?? 0.5
+    ctx.fillStyle = computeFillStyle(ctx, wm.bgColorMode, wm.bgColor, wm.bgGradientStart, wm.bgGradientEnd, wm.bgGradientAngle, wm.bgRandomColorMin, wm.bgRandomColorMax, bgW, bgH)
     drawRoundedRectOnCtx(ctx, bgX, bgY, bgW, bgH, bgRadius)
     ctx.fill()
     ctx.restore()
   }
 
-  // Border
-  if (wm.borderEnabled) {
-    drawBorderOnCtx(ctx, wm, bgX, bgY, bgW, bgH, bw, bgRadius, fontSize)
-  }
+  if (wm.borderEnabled) drawBorderOnCtx(ctx, wm, bgX, bgY, bgW, bgH, bw, bgRadius, fs)
 
   // Text color
   let textColor = wm.color || '#ffffff'
-  let textOpacity = wm.opacity ?? 0.7
-
   if (wm.colorMode === 'gradient') {
     const angle = (wm.gradientAngle || 45) * Math.PI / 180
     const gl = textWidth * 1.5
-    const gradient = ctx.createLinearGradient(
-      -Math.cos(angle) * gl / 2, -Math.sin(angle) * gl / 2,
-      Math.cos(angle) * gl / 2, Math.sin(angle) * gl / 2
-    )
+    const gradient = ctx.createLinearGradient(-Math.cos(angle)*gl/2, -Math.sin(angle)*gl/2, Math.cos(angle)*gl/2, Math.sin(angle)*gl/2)
     gradient.addColorStop(0, wm.gradientStart || '#667eea')
     gradient.addColorStop(1, wm.gradientEnd || '#764ba2')
     textColor = gradient
@@ -538,14 +580,23 @@ const drawSingleWatermark = (ctx, wm, x, y, fontSize, rotation, canvas) => {
     textOpacity = (wm.randomOpacityMin || 0.3) + Math.random() * ((wm.randomOpacityMax || 0.8) - (wm.randomOpacityMin || 0.3))
   }
 
-  ctx.globalAlpha = textOpacity
-  ctx.fillStyle = textColor
   ctx.textBaseline = 'middle'
   ctx.textAlign = 'center'
 
-  textLines.forEach((line, i) => {
-    ctx.fillText(line, 0, startY + i * lineHeight)
-  })
+  // Text stroke drawn before fill so fill covers inward bleed
+  if (wm.textStrokeEnabled) {
+    ctx.save()
+    ctx.globalAlpha = textOpacity * (wm.textStrokeOpacity ?? 1)
+    ctx.strokeStyle = computeFillStyle(ctx, wm.textStrokeColorMode, wm.textStrokeColor, wm.textStrokeGradientStart, wm.textStrokeGradientEnd, wm.textStrokeGradientAngle, wm.textStrokeRandomColorMin, wm.textStrokeRandomColorMax, textWidth, textHeight)
+    ctx.lineWidth = (wm.textStrokeWidth ?? 2) * (fs / 32)
+    ctx.lineJoin = 'round'
+    textLines.forEach((line, i) => ctx.strokeText(line, 0, startY + i * lineHeight))
+    ctx.restore()
+  }
+
+  ctx.globalAlpha = textOpacity
+  ctx.fillStyle = textColor
+  textLines.forEach((line, i) => ctx.fillText(line, 0, startY + i * lineHeight))
 
   ctx.restore()
 }
@@ -553,7 +604,7 @@ const drawSingleWatermark = (ctx, wm, x, y, fontSize, rotation, canvas) => {
 // Draw border stroke with style support
 const drawBorderOnCtx = (ctx, wm, bgX, bgY, bgW, bgH, bw, radius, fontSize) => {
   ctx.save()
-  ctx.strokeStyle = wm.borderColor || '#ffffff'
+  ctx.strokeStyle = computeFillStyle(ctx, wm.borderColorMode, wm.borderColor, wm.borderGradientStart, wm.borderGradientEnd, wm.borderGradientAngle, wm.borderRandomColorMin, wm.borderRandomColorMax, bgW, bgH)
   ctx.globalAlpha = wm.borderOpacity ?? 1
 
   if (wm.borderStyle === 'dashed') {
@@ -601,10 +652,10 @@ const drawRoundedRect = (ctx, x, y, width, height, radius) => {
   ctx.closePath()
 }
 
+let rafId = null
 const redrawAll = () => {
-  nextTick(() => {
-    drawPreview()
-  })
+  if (rafId !== null) cancelAnimationFrame(rafId)
+  rafId = requestAnimationFrame(() => { rafId = null; drawPreview() })
 }
 
 // Watch for changes and redraw

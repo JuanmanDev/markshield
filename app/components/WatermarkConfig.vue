@@ -25,64 +25,78 @@
         <span class="material-symbols-outlined text-sm transition-transform" :class="{ 'rotate-180': openSections.basic }">expand_more</span>
       </button>
 
-      <div v-if="openSections.basic" class="p-4 space-y-4 border-t border-white/5">
+      <div v-if="openSections.basic" class="p-4 space-y-3 border-t border-white/5">
         <!-- Font Size -->
-        <div class="space-y-1.5">
-          <label class="text-[10px] font-medium text-on-surface-variant flex items-center gap-1">
-            <span class="material-symbols-outlined text-xs">format_size</span>
-            Size
-          </label>
-          <div class="flex items-center gap-1.5">
+        <div class="space-y-1">
+          <div class="flex items-center justify-between">
+            <label class="text-[10px] font-medium text-on-surface-variant flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs">format_size</span>Size
+            </label>
+            <button @click="localWatermark.randomizeSize = !localWatermark.randomizeSize; updateWatermark()" class="text-[8px] font-bold px-1.5 py-0.5 rounded transition-all" :class="localWatermark.randomizeSize ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant'">~</button>
+          </div>
+          <div v-if="!localWatermark.randomizeSize" class="flex items-center gap-1.5">
             <input type="range" v-model.number="localWatermark.fontSize" @input="updateWatermark" min="8" max="300" step="1" class="flex-1 h-1 bg-surface-container rounded-full appearance-none accent-primary" />
-            <input type="number" v-model.number="localWatermark.fontSize" @change="updateWatermark" class="w-16 bg-surface-container-highest border border-white/10 rounded px-1.5 py-0.5 text-[10px] text-on-surface text-right focus:outline-none focus:border-primary" min="1" />
+            <input type="number" v-model.number="localWatermark.fontSize" @change="updateWatermark" class="w-14 bg-surface-container-highest border border-white/10 rounded px-1 py-0.5 text-[10px] text-on-surface text-right focus:outline-none focus:border-primary" min="1" />
+          </div>
+          <div v-else class="grid grid-cols-2 gap-1.5">
+            <div><label class="text-[8px] text-on-surface-variant">Min px</label><input type="number" v-model.number="localWatermark.sizeMin" @change="updateWatermark" class="w-full bg-surface-container-highest border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="1" /></div>
+            <div><label class="text-[8px] text-on-surface-variant">Max px</label><input type="number" v-model.number="localWatermark.sizeMax" @change="updateWatermark" class="w-full bg-surface-container-highest border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="1" /></div>
           </div>
         </div>
 
         <!-- Rotation -->
-        <div class="space-y-1.5">
-          <label class="text-[10px] font-medium text-on-surface-variant flex items-center gap-1">
-            <span class="material-symbols-outlined text-xs">rotate_right</span>
-            Rotation
-          </label>
-          <div class="flex items-center gap-1.5">
+        <div class="space-y-1" :class="localWatermark.pattern ? 'opacity-40 pointer-events-none' : ''">
+          <div class="flex items-center justify-between">
+            <label class="text-[10px] font-medium text-on-surface-variant flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs">rotate_right</span>
+              Rotation
+              <span v-if="localWatermark.pattern" class="text-[8px] text-on-surface-variant/50">(use Pattern Rotation)</span>
+            </label>
+            <button @click="localWatermark.randomizeRotation = !localWatermark.randomizeRotation; updateWatermark()" class="text-[8px] font-bold px-1.5 py-0.5 rounded transition-all" :class="localWatermark.randomizeRotation ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant'">~</button>
+          </div>
+          <div v-if="!localWatermark.randomizeRotation" class="flex items-center gap-1.5">
             <input type="range" v-model.number="localWatermark.rotation" @input="updateWatermark" min="-180" max="180" step="1" class="flex-1 h-1 bg-surface-container rounded-full appearance-none accent-primary" />
-            <input type="number" v-model.number="localWatermark.rotation" @change="updateWatermark" class="w-16 bg-surface-container-highest border border-white/10 rounded px-1.5 py-0.5 text-[10px] text-on-surface text-right focus:outline-none focus:border-primary" min="-360" max="360" />
+            <input type="number" v-model.number="localWatermark.rotation" @change="updateWatermark" class="w-14 bg-surface-container-highest border border-white/10 rounded px-1 py-0.5 text-[10px] text-on-surface text-right focus:outline-none focus:border-primary" min="-360" max="360" />
+          </div>
+          <div v-else class="grid grid-cols-2 gap-1.5">
+            <div><label class="text-[8px] text-on-surface-variant">Min °</label><input type="number" v-model.number="localWatermark.rotationMin" @change="updateWatermark" class="w-full bg-surface-container-highest border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="-360" max="360" /></div>
+            <div><label class="text-[8px] text-on-surface-variant">Max °</label><input type="number" v-model.number="localWatermark.rotationMax" @change="updateWatermark" class="w-full bg-surface-container-highest border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="-360" max="360" /></div>
           </div>
         </div>
 
         <!-- Opacity -->
-        <div class="space-y-1.5">
-          <label class="text-[10px] font-medium text-on-surface-variant flex items-center gap-1">
-            <span class="material-symbols-outlined text-xs">opacity</span>
-            Opacity
-          </label>
-          <div class="flex items-center gap-1.5">
+        <div class="space-y-1">
+          <div class="flex items-center justify-between">
+            <label class="text-[10px] font-medium text-on-surface-variant flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs">opacity</span>Opacity
+            </label>
+            <button @click="localWatermark.randomizeOpacity = !localWatermark.randomizeOpacity; updateWatermark()" class="text-[8px] font-bold px-1.5 py-0.5 rounded transition-all" :class="localWatermark.randomizeOpacity ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant'">~</button>
+          </div>
+          <div v-if="!localWatermark.randomizeOpacity" class="flex items-center gap-1.5">
             <input type="range" v-model.number="localWatermark.opacity" @input="updateWatermark" min="0" max="1" step="0.01" class="flex-1 h-1 bg-surface-container rounded-full appearance-none accent-primary" />
-            <input type="number" v-model.number="localWatermark.opacity" @change="updateWatermark" class="w-16 bg-surface-container-highest border border-white/10 rounded px-1.5 py-0.5 text-[10px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" max="1" step="0.01" />
+            <input type="number" v-model.number="localWatermark.opacity" @change="updateWatermark" class="w-14 bg-surface-container-highest border border-white/10 rounded px-1 py-0.5 text-[10px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" max="1" step="0.01" />
+          </div>
+          <div v-else class="grid grid-cols-2 gap-1.5">
+            <div><label class="text-[8px] text-on-surface-variant">Min</label><input type="number" v-model.number="localWatermark.opacityMin" @change="updateWatermark" class="w-full bg-surface-container-highest border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" max="1" step="0.01" /></div>
+            <div><label class="text-[8px] text-on-surface-variant">Max</label><input type="number" v-model.number="localWatermark.opacityMax" @change="updateWatermark" class="w-full bg-surface-container-highest border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" max="1" step="0.01" /></div>
           </div>
         </div>
 
-        <!-- Position X & Y -->
-        <div class="grid grid-cols-2 gap-3">
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-medium text-on-surface-variant flex items-center gap-1">
-              <span class="material-symbols-outlined text-xs">arrow_range</span>
-              X pos
-            </label>
-            <div class="flex items-center gap-1">
-              <input type="range" v-model.number="localWatermark.x" @input="updateWatermark" min="0" max="100" step="0.5" class="flex-1 h-1 bg-surface-container rounded-full appearance-none accent-primary" />
-              <input type="number" v-model.number="localWatermark.x" @change="updateWatermark" class="w-14 bg-surface-container-highest border border-white/10 rounded px-1 py-0.5 text-[10px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" max="100" step="0.5" />
-            </div>
+        <!-- Position X & Y — single compact line each -->
+        <div class="space-y-1" :class="localWatermark.pattern ? 'opacity-40 pointer-events-none' : ''">
+          <label class="text-[10px] font-medium text-on-surface-variant flex items-center gap-1">
+            Position
+            <span v-if="localWatermark.pattern" class="text-[8px] text-on-surface-variant/50">(n/a in pattern mode)</span>
+          </label>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[9px] font-bold text-on-surface-variant/60 w-3 shrink-0">X</span>
+            <input type="range" v-model.number="localWatermark.x" @input="updateWatermark" min="0" max="100" step="0.5" class="flex-1 h-1 bg-surface-container rounded-full appearance-none accent-primary" />
+            <input type="number" v-model.number="localWatermark.x" @change="updateWatermark" class="w-14 bg-surface-container-highest border border-white/10 rounded px-1 py-0.5 text-[10px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" max="100" step="0.5" />
           </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-medium text-on-surface-variant flex items-center gap-1">
-              <span class="material-symbols-outlined text-xs">vertical_align_center</span>
-              Y pos
-            </label>
-            <div class="flex items-center gap-1">
-              <input type="range" v-model.number="localWatermark.y" @input="updateWatermark" min="0" max="100" step="0.5" class="flex-1 h-1 bg-surface-container rounded-full appearance-none accent-primary" />
-              <input type="number" v-model.number="localWatermark.y" @change="updateWatermark" class="w-14 bg-surface-container-highest border border-white/10 rounded px-1 py-0.5 text-[10px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" max="100" step="0.5" />
-            </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[9px] font-bold text-on-surface-variant/60 w-3 shrink-0">Y</span>
+            <input type="range" v-model.number="localWatermark.y" @input="updateWatermark" min="0" max="100" step="0.5" class="flex-1 h-1 bg-surface-container rounded-full appearance-none accent-primary" />
+            <input type="number" v-model.number="localWatermark.y" @change="updateWatermark" class="w-14 bg-surface-container-highest border border-white/10 rounded px-1 py-0.5 text-[10px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" max="100" step="0.5" />
           </div>
         </div>
       </div>
@@ -157,17 +171,74 @@
           <div class="flex items-center justify-between">
             <label class="text-[10px] font-medium text-on-surface-variant flex items-center gap-1">
               <span class="material-symbols-outlined text-xs">filter_none</span>
-              Cutout Text (inverted mark)
+              Cutout Text (inverted)
             </label>
-            <button
-              @click="localWatermark.textCutout = !localWatermark.textCutout; updateWatermark()"
-              class="w-8 h-4 rounded-full transition-all"
-              :class="localWatermark.textCutout ? 'bg-primary' : 'bg-surface-container-highest'"
-            >
+            <button @click="toggleCutout" class="w-8 h-4 rounded-full transition-all" :class="localWatermark.textCutout ? 'bg-primary' : 'bg-surface-container-highest'">
               <div class="w-3 h-3 bg-white rounded-full shadow-md transform transition-transform" :class="localWatermark.textCutout ? 'translate-x-4' : 'translate-x-0.5'"></div>
             </button>
           </div>
-          <p v-if="localWatermark.textCutout" class="text-[9px] text-on-surface-variant/60 mt-1">Requires Background enabled. Text is punched out of the background.</p>
+          <p v-if="localWatermark.textCutout" class="text-[9px] text-on-surface-variant/60 mt-1">Opacity 0 = pure hole. Raise opacity to blend text over the cutout.</p>
+        </div>
+
+        <!-- Text Stroke / Outline -->
+        <div class="pt-3 border-t border-white/5">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-[10px] font-medium text-on-surface-variant flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs">border_color</span>
+              Text Outline
+            </label>
+            <button @click="localWatermark.textStrokeEnabled = !localWatermark.textStrokeEnabled; updateWatermark()" class="w-8 h-4 rounded-full transition-all" :class="localWatermark.textStrokeEnabled ? 'bg-primary' : 'bg-surface-container-highest'">
+              <div class="w-3 h-3 bg-white rounded-full shadow-md transform transition-transform" :class="localWatermark.textStrokeEnabled ? 'translate-x-4' : 'translate-x-0.5'"></div>
+            </button>
+          </div>
+
+          <div v-if="localWatermark.textStrokeEnabled" class="space-y-2 pl-4">
+            <!-- Stroke Color Mode -->
+            <div class="flex gap-1 p-0.5 bg-surface-container rounded-md">
+              <button v-for="m in colorModes" :key="m.value" @click="localWatermark.textStrokeColorMode = m.value; updateWatermark()" class="flex-1 py-1 px-1 rounded text-[8px] font-bold uppercase tracking-wider transition-all" :class="localWatermark.textStrokeColorMode === m.value ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'">{{ m.label }}</button>
+            </div>
+            <div v-if="localWatermark.textStrokeColorMode === 'solid'" class="flex items-center gap-2">
+              <input type="color" v-model="localWatermark.textStrokeColor" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
+              <span class="text-[9px] font-bold uppercase tracking-wider text-on-surface">{{ localWatermark.textStrokeColor }}</span>
+            </div>
+            <div v-if="localWatermark.textStrokeColorMode === 'gradient'" class="space-y-1.5">
+              <div class="flex items-center gap-2">
+                <input type="color" v-model="localWatermark.textStrokeGradientStart" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
+                <span class="text-[9px] text-on-surface-variant">Start</span>
+                <input type="color" v-model="localWatermark.textStrokeGradientEnd" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
+                <span class="text-[9px] text-on-surface-variant">End</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[9px] text-on-surface-variant w-8 shrink-0">Angle</span>
+                <input type="range" v-model.number="localWatermark.textStrokeGradientAngle" @input="updateWatermark" min="0" max="360" step="5" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
+                <input type="number" v-model.number="localWatermark.textStrokeGradientAngle" @change="updateWatermark" class="w-12 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" max="360" />
+              </div>
+            </div>
+            <div v-if="localWatermark.textStrokeColorMode === 'random'" class="flex items-center gap-2">
+              <input type="color" v-model="localWatermark.textStrokeRandomColorMin" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
+              <span class="text-[9px] text-on-surface-variant">Min</span>
+              <input type="color" v-model="localWatermark.textStrokeRandomColorMax" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
+              <span class="text-[9px] text-on-surface-variant">Max</span>
+            </div>
+
+            <!-- Stroke Width -->
+            <div class="space-y-1">
+              <label class="text-[9px] font-medium text-on-surface-variant">Width</label>
+              <div class="flex items-center gap-1.5">
+                <input type="range" v-model.number="localWatermark.textStrokeWidth" @input="updateWatermark" min="0.5" max="20" step="0.5" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
+                <input type="number" v-model.number="localWatermark.textStrokeWidth" @change="updateWatermark" class="w-14 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0.5" step="0.5" />
+              </div>
+            </div>
+
+            <!-- Stroke Opacity -->
+            <div class="space-y-1">
+              <label class="text-[9px] font-medium text-on-surface-variant">Opacity</label>
+              <div class="flex items-center gap-1.5">
+                <input type="range" v-model.number="localWatermark.textStrokeOpacity" @input="updateWatermark" min="0" max="1" step="0.01" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
+                <input type="number" v-model.number="localWatermark.textStrokeOpacity" @change="updateWatermark" class="w-14 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" max="1" step="0.01" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -200,9 +271,32 @@
           </div>
 
           <div v-if="localWatermark.bgEnabled" class="space-y-2 pl-4">
-            <div class="flex items-center gap-2">
+            <!-- BG Color Mode -->
+            <div class="flex gap-1 p-0.5 bg-surface-container rounded-md">
+              <button v-for="m in colorModes" :key="m.value" @click="localWatermark.bgColorMode = m.value; updateWatermark()" class="flex-1 py-1 px-1 rounded text-[8px] font-bold uppercase tracking-wider transition-all" :class="localWatermark.bgColorMode === m.value ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'">{{ m.label }}</button>
+            </div>
+            <div v-if="localWatermark.bgColorMode === 'solid'" class="flex items-center gap-2">
               <input type="color" v-model="localWatermark.bgColor" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
-              <span class="text-[9px] text-on-surface-variant">Color</span>
+              <span class="text-[9px] font-bold uppercase tracking-wider text-on-surface">{{ localWatermark.bgColor }}</span>
+            </div>
+            <div v-if="localWatermark.bgColorMode === 'gradient'" class="space-y-1.5">
+              <div class="flex items-center gap-2">
+                <input type="color" v-model="localWatermark.bgGradientStart" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
+                <span class="text-[9px] text-on-surface-variant">Start</span>
+                <input type="color" v-model="localWatermark.bgGradientEnd" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
+                <span class="text-[9px] text-on-surface-variant">End</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[9px] text-on-surface-variant w-8 shrink-0">Angle</span>
+                <input type="range" v-model.number="localWatermark.bgGradientAngle" @input="updateWatermark" min="0" max="360" step="5" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
+                <input type="number" v-model.number="localWatermark.bgGradientAngle" @change="updateWatermark" class="w-12 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" max="360" />
+              </div>
+            </div>
+            <div v-if="localWatermark.bgColorMode === 'random'" class="flex items-center gap-2">
+              <input type="color" v-model="localWatermark.bgRandomColorMin" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
+              <span class="text-[9px] text-on-surface-variant">Min</span>
+              <input type="color" v-model="localWatermark.bgRandomColorMax" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
+              <span class="text-[9px] text-on-surface-variant">Max</span>
             </div>
 
             <!-- BG Opacity -->
@@ -275,9 +369,32 @@
           </div>
 
           <div v-if="localWatermark.borderEnabled" class="space-y-2 pl-4">
-            <div class="flex items-center gap-2">
+            <!-- Border Color Mode -->
+            <div class="flex gap-1 p-0.5 bg-surface-container rounded-md">
+              <button v-for="m in colorModes" :key="m.value" @click="localWatermark.borderColorMode = m.value; updateWatermark()" class="flex-1 py-1 px-1 rounded text-[8px] font-bold uppercase tracking-wider transition-all" :class="localWatermark.borderColorMode === m.value ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'">{{ m.label }}</button>
+            </div>
+            <div v-if="localWatermark.borderColorMode === 'solid'" class="flex items-center gap-2">
               <input type="color" v-model="localWatermark.borderColor" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
-              <span class="text-[9px] text-on-surface-variant">Color</span>
+              <span class="text-[9px] font-bold uppercase tracking-wider text-on-surface">{{ localWatermark.borderColor }}</span>
+            </div>
+            <div v-if="localWatermark.borderColorMode === 'gradient'" class="space-y-1.5">
+              <div class="flex items-center gap-2">
+                <input type="color" v-model="localWatermark.borderGradientStart" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
+                <span class="text-[9px] text-on-surface-variant">Start</span>
+                <input type="color" v-model="localWatermark.borderGradientEnd" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
+                <span class="text-[9px] text-on-surface-variant">End</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[9px] text-on-surface-variant w-8 shrink-0">Angle</span>
+                <input type="range" v-model.number="localWatermark.borderGradientAngle" @input="updateWatermark" min="0" max="360" step="5" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
+                <input type="number" v-model.number="localWatermark.borderGradientAngle" @change="updateWatermark" class="w-12 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" max="360" />
+              </div>
+            </div>
+            <div v-if="localWatermark.borderColorMode === 'random'" class="flex items-center gap-2">
+              <input type="color" v-model="localWatermark.borderRandomColorMin" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
+              <span class="text-[9px] text-on-surface-variant">Min</span>
+              <input type="color" v-model="localWatermark.borderRandomColorMax" @input="updateWatermark" class="w-6 h-6 rounded cursor-pointer border border-white/5" />
+              <span class="text-[9px] text-on-surface-variant">Max</span>
             </div>
 
             <!-- Border Width -->
@@ -346,98 +463,72 @@
           </button>
         </div>
 
-        <div v-if="localWatermark.pattern" class="space-y-3">
-          <!-- X and Y Spacing -->
-          <div class="grid grid-cols-2 gap-3">
-            <div class="space-y-1">
-              <div class="flex items-center justify-between">
-                <label class="text-[9px] font-medium text-on-surface-variant">X Spacing</label>
-                <select v-model="localWatermark.patternSpacingXUnit" @change="updateWatermark" class="bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface focus:outline-none focus:border-primary">
-                  <option value="lines">×lh</option>
-                  <option value="em">em</option>
-                  <option value="px">px</option>
-                </select>
-              </div>
-              <div class="flex items-center gap-1">
-                <input type="range" v-model.number="localWatermark.patternSpacingX" @input="updateWatermark" min="0.5" max="20" step="0.1" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
-                <input type="number" v-model.number="localWatermark.patternSpacingX" @change="updateWatermark" class="w-12 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0.1" step="0.1" />
-              </div>
+        <div v-if="localWatermark.pattern" class="space-y-2">
+          <!-- X Spacing -->
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <label class="text-[9px] font-medium text-on-surface-variant">X Spacing</label>
+              <select v-model="localWatermark.patternSpacingXUnit" @change="updateWatermark" class="bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface focus:outline-none focus:border-primary">
+                <option v-for="u in unitOptions" :key="u.value" :value="u.value">{{ u.label }}</option>
+              </select>
             </div>
-            <div class="space-y-1">
-              <div class="flex items-center justify-between">
-                <label class="text-[9px] font-medium text-on-surface-variant">Y Spacing</label>
-                <select v-model="localWatermark.patternSpacingYUnit" @change="updateWatermark" class="bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface focus:outline-none focus:border-primary">
-                  <option value="lines">×lh</option>
-                  <option value="em">em</option>
-                  <option value="px">px</option>
-                </select>
-              </div>
-              <div class="flex items-center gap-1">
-                <input type="range" v-model.number="localWatermark.patternSpacingY" @input="updateWatermark" min="0.5" max="20" step="0.1" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
-                <input type="number" v-model.number="localWatermark.patternSpacingY" @change="updateWatermark" class="w-12 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0.1" step="0.1" />
-              </div>
+            <div class="flex items-center gap-1.5">
+              <input type="range" v-model.number="localWatermark.patternSpacingX" @input="updateWatermark" min="0.5" max="20" step="0.1" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
+              <input type="number" v-model.number="localWatermark.patternSpacingX" @change="updateWatermark" class="w-14 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0.1" step="0.1" />
             </div>
           </div>
-
-          <!-- Gap Top / Bottom (extra spacing per row) -->
-          <div class="grid grid-cols-2 gap-3 pt-1 border-t border-white/5">
-            <div class="space-y-1.5">
-              <label class="text-[9px] font-medium text-on-surface-variant">Gap Top</label>
-              <div class="flex items-center gap-1">
-                <input type="range" v-model.number="localWatermark.patternGapTop" @input="updateWatermark" min="0" max="5" step="0.1" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
-                <input type="number" v-model.number="localWatermark.patternGapTop" @change="updateWatermark" class="w-12 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" step="0.1" />
-              </div>
+          <!-- Y Spacing -->
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <label class="text-[9px] font-medium text-on-surface-variant">Y Spacing</label>
+              <select v-model="localWatermark.patternSpacingYUnit" @change="updateWatermark" class="bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface focus:outline-none focus:border-primary">
+                <option v-for="u in unitOptions" :key="u.value" :value="u.value">{{ u.label }}</option>
+              </select>
             </div>
-            <div class="space-y-1.5">
-              <label class="text-[9px] font-medium text-on-surface-variant">Gap Bottom</label>
-              <div class="flex items-center gap-1">
-                <input type="range" v-model.number="localWatermark.patternGapBottom" @input="updateWatermark" min="0" max="5" step="0.1" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
-                <input type="number" v-model.number="localWatermark.patternGapBottom" @change="updateWatermark" class="w-12 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" step="0.1" />
-              </div>
+            <div class="flex items-center gap-1.5">
+              <input type="range" v-model.number="localWatermark.patternSpacingY" @input="updateWatermark" min="0.5" max="20" step="0.1" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
+              <input type="number" v-model.number="localWatermark.patternSpacingY" @change="updateWatermark" class="w-14 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0.1" step="0.1" />
             </div>
           </div>
-
+          <!-- Gap Y (extra row spacing) -->
+          <div class="space-y-1 pt-2 border-t border-white/5">
+            <label class="text-[9px] font-medium text-on-surface-variant">Row Gap ×lh</label>
+            <div class="flex items-center gap-1.5">
+              <input type="range" v-model.number="localWatermark.patternGapY" @input="updateWatermark" min="0" max="10" step="0.1" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
+              <input type="number" v-model.number="localWatermark.patternGapY" @change="updateWatermark" class="w-14 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" step="0.1" />
+            </div>
+          </div>
           <!-- Row Offset -->
-          <div class="space-y-1.5">
-            <label class="text-[9px] font-medium text-on-surface-variant">Row Offset</label>
+          <div class="space-y-1">
+            <label class="text-[9px] font-medium text-on-surface-variant">Row Offset ×lh</label>
             <div class="flex items-center gap-1.5">
               <input type="range" v-model.number="localWatermark.patternOffset" @input="updateWatermark" min="0" max="10" step="0.1" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
               <input type="number" v-model.number="localWatermark.patternOffset" @change="updateWatermark" class="w-14 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0" step="0.1" />
             </div>
           </div>
-
           <!-- Random Offset -->
           <div class="flex items-center justify-between">
             <label class="text-[9px] font-medium text-on-surface-variant flex items-center gap-1">
-              <span class="material-symbols-outlined text-xs">shuffle</span>
-              Random Offset
+              <span class="material-symbols-outlined text-xs">shuffle</span>Random Offset
             </label>
-            <button
-              @click="localWatermark.patternRandomOffset = !localWatermark.patternRandomOffset; updateWatermark()"
-              class="w-8 h-4 rounded-full transition-all"
-              :class="localWatermark.patternRandomOffset ? 'bg-primary' : 'bg-surface-container-highest'"
-            >
+            <button @click="localWatermark.patternRandomOffset = !localWatermark.patternRandomOffset; updateWatermark()" class="w-8 h-4 rounded-full transition-all" :class="localWatermark.patternRandomOffset ? 'bg-primary' : 'bg-surface-container-highest'">
               <div class="w-3 h-3 bg-white rounded-full shadow-md transform transition-transform" :class="localWatermark.patternRandomOffset ? 'translate-x-4' : 'translate-x-0.5'"></div>
             </button>
           </div>
-
-          <!-- Line Height Multiplier -->
-          <div class="space-y-1.5 pt-3 border-t border-white/5">
+          <!-- Line Spacing -->
+          <div class="space-y-1 pt-2 border-t border-white/5">
             <label class="text-[9px] font-medium text-on-surface-variant flex items-center gap-1">
-              <span class="material-symbols-outlined text-xs">format_line_spacing</span>
-              Line Spacing
+              <span class="material-symbols-outlined text-xs">format_line_spacing</span>Line Spacing ×
             </label>
             <div class="flex items-center gap-1.5">
               <input type="range" v-model.number="localWatermark.lineHeightMultiplier" @input="updateWatermark" min="0.5" max="5" step="0.1" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
               <input type="number" v-model.number="localWatermark.lineHeightMultiplier" @change="updateWatermark" class="w-14 bg-surface-container border border-white/10 rounded px-1 py-0.5 text-[9px] text-on-surface text-right focus:outline-none focus:border-primary" min="0.1" step="0.1" />
             </div>
           </div>
-
           <!-- Pattern Rotation -->
-          <div class="space-y-1.5 pt-3 border-t border-white/5">
+          <div class="space-y-1 pt-2 border-t border-white/5">
             <label class="text-[9px] font-medium text-on-surface-variant flex items-center gap-1">
-              <span class="material-symbols-outlined text-xs">rotate_right</span>
-              Pattern Rotation
+              <span class="material-symbols-outlined text-xs">rotate_right</span>Pattern Rotation °
             </label>
             <div class="flex items-center gap-1.5">
               <input type="range" v-model.number="localWatermark.patternRotation" @input="updateWatermark" min="-180" max="180" step="1" class="flex-1 h-1 bg-surface-container-highest rounded-full appearance-none accent-primary" />
@@ -464,107 +555,91 @@ import { ref, reactive, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-const props = defineProps({
-  watermark: {
-    type: Object,
-    required: true
-  }
-})
+const props = defineProps({ watermark: { type: Object, required: true } })
 
 const colorModes = [
   { value: 'solid', label: 'Solid' },
-  { value: 'gradient', label: 'Gradient' },
-  { value: 'random', label: 'Random' }
+  { value: 'gradient', label: 'Grad' },
+  { value: 'random', label: 'Rand' }
 ]
-
 const borderStyles = [
   { value: 'solid', label: 'Solid' },
   { value: 'dashed', label: 'Dash' },
   { value: 'dotted', label: 'Dot' },
   { value: 'double', label: 'Double' }
 ]
+const unitOptions = [
+  { value: 'lines', label: '×lh' },
+  { value: 'em', label: 'em' },
+  { value: 'px', label: 'px' }
+]
 
-const openSections = reactive({
-  basic: true,
-  color: false,
-  bg: false,
-  pattern: false
-})
-
-const toggleSection = (section) => {
-  openSections[section] = !openSections[section]
-}
+const openSections = reactive({ basic: true, color: false, bg: false, pattern: false })
+const toggleSection = (s) => { openSections[s] = !openSections[s] }
 
 const localWatermark = reactive({
-  rotation: 0,
-  colorMode: 'solid',
-  gradientStart: '#667eea',
-  gradientEnd: '#764ba2',
-  gradientAngle: 45,
-  randomColorMin: '#667eea',
-  randomColorMax: '#764ba2',
-  randomOpacityMin: 0.3,
-  randomOpacityMax: 0.8,
-  bgEnabled: false,
-  bgColor: '#000000',
-  bgOpacity: 0.5,
-  bgPadding: 10,
-  bgPaddingAuto: false,
-  bgPaddingMult: 0.3,
-  bgRadius: 5,
-  bgRadiusAuto: false,
-  bgRadiusMult: 0.15,
-  borderEnabled: false,
-  borderColor: '#ffffff',
-  borderWidth: 2,
-  borderOpacity: 1,
-  borderStyle: 'solid',
-  borderRadius: 0,
-  patternSpacingX: 3,
-  patternSpacingY: 2.5,
-  patternSpacingXUnit: 'lines',
-  patternSpacingYUnit: 'lines',
-  patternOffset: 1.5,
-  patternGapTop: 0,
-  patternGapBottom: 0,
-  patternRandomOffset: false,
-  patternRotation: 0,
-  lineHeightMultiplier: 1.5,
-  textCutout: false,
+  text: 'Watermark', fontSize: 32, color: '#ffffff', opacity: 0.7, x: 50, y: 50,
+  pattern: false, rotation: 0,
+  colorMode: 'solid', gradientStart: '#667eea', gradientEnd: '#764ba2', gradientAngle: 45,
+  randomColorMin: '#667eea', randomColorMax: '#764ba2', randomOpacityMin: 0.3, randomOpacityMax: 0.8,
+  randomizeOpacity: false, opacityMin: 0.3, opacityMax: 0.8,
+  randomizeSize: false, sizeMin: 16, sizeMax: 64,
+  randomizeRotation: false, rotationMin: -30, rotationMax: 30,
+  bgEnabled: false, bgColorMode: 'solid',
+  bgColor: '#000000', bgGradientStart: '#333333', bgGradientEnd: '#000000', bgGradientAngle: 0,
+  bgRandomColorMin: '#000000', bgRandomColorMax: '#333333',
+  bgOpacity: 0.5, bgPadding: 10, bgPaddingAuto: false, bgPaddingMult: 0.3,
+  bgRadius: 5, bgRadiusAuto: false, bgRadiusMult: 0.15,
+  borderEnabled: false, borderColorMode: 'solid',
+  borderColor: '#ffffff', borderGradientStart: '#ffffff', borderGradientEnd: '#cccccc', borderGradientAngle: 0,
+  borderRandomColorMin: '#cccccc', borderRandomColorMax: '#ffffff',
+  borderWidth: 2, borderOpacity: 1, borderStyle: 'solid', borderRadius: 0,
+  patternSpacingX: 3, patternSpacingY: 2.5,
+  patternSpacingXUnit: 'lines', patternSpacingYUnit: 'lines',
+  patternOffset: 1.5, patternGapY: 0,
+  patternRandomOffset: false, patternRotation: 0,
+  lineHeightMultiplier: 1.5, textCutout: false,
+  textStrokeEnabled: false, textStrokeColorMode: 'solid',
+  textStrokeColor: '#000000', textStrokeGradientStart: '#000000', textStrokeGradientEnd: '#555555', textStrokeGradientAngle: 45,
+  textStrokeRandomColorMin: '#000000', textStrokeRandomColorMax: '#555555',
+  textStrokeWidth: 2, textStrokeOpacity: 1,
   ...props.watermark
 })
 
-watch(() => props.watermark, (newVal) => {
-  Object.assign(localWatermark, newVal)
-}, { deep: true })
+watch(() => props.watermark, (v) => Object.assign(localWatermark, v), { deep: true })
 
 const emit = defineEmits(['update:watermark', 'add-watermark'])
 
-const updateWatermark = () => {
-  localWatermark.fontSize = Number(localWatermark.fontSize) || 32
-  localWatermark.opacity = Number(localWatermark.opacity)
-  localWatermark.x = Number(localWatermark.x)
-  localWatermark.y = Number(localWatermark.y)
-  localWatermark.rotation = Number(localWatermark.rotation)
-  localWatermark.gradientAngle = Number(localWatermark.gradientAngle)
-  localWatermark.randomOpacityMin = Number(localWatermark.randomOpacityMin)
-  localWatermark.randomOpacityMax = Number(localWatermark.randomOpacityMax)
-  localWatermark.bgOpacity = Number(localWatermark.bgOpacity)
-  localWatermark.bgPadding = Number(localWatermark.bgPadding)
-  localWatermark.bgPaddingMult = Number(localWatermark.bgPaddingMult)
-  localWatermark.bgRadius = Number(localWatermark.bgRadius)
-  localWatermark.bgRadiusMult = Number(localWatermark.bgRadiusMult)
-  localWatermark.borderWidth = Number(localWatermark.borderWidth)
-  localWatermark.borderOpacity = Number(localWatermark.borderOpacity)
-  localWatermark.borderRadius = Number(localWatermark.borderRadius)
-  localWatermark.patternSpacingX = Number(localWatermark.patternSpacingX)
-  localWatermark.patternSpacingY = Number(localWatermark.patternSpacingY)
-  localWatermark.patternOffset = Number(localWatermark.patternOffset)
-  localWatermark.patternGapTop = Number(localWatermark.patternGapTop)
-  localWatermark.patternGapBottom = Number(localWatermark.patternGapBottom)
-  localWatermark.lineHeightMultiplier = Number(localWatermark.lineHeightMultiplier)
-  localWatermark.patternRotation = Number(localWatermark.patternRotation)
+const savedOpacityBeforeCutout = ref(null)
+const toggleCutout = () => {
+  if (!localWatermark.textCutout) {
+    savedOpacityBeforeCutout.value = localWatermark.opacity
+    localWatermark.textCutout = true
+    localWatermark.opacity = 0
+  } else {
+    localWatermark.textCutout = false
+    if (savedOpacityBeforeCutout.value !== null) {
+      localWatermark.opacity = savedOpacityBeforeCutout.value
+      savedOpacityBeforeCutout.value = null
+    }
+  }
+  updateWatermark()
+}
 
+const numFields = [
+  'fontSize','opacity','x','y','rotation','gradientAngle',
+  'randomOpacityMin','randomOpacityMax','opacityMin','opacityMax',
+  'sizeMin','sizeMax','rotationMin','rotationMax',
+  'bgOpacity','bgPadding','bgPaddingMult','bgRadius','bgRadiusMult','bgGradientAngle',
+  'borderWidth','borderOpacity','borderRadius','borderGradientAngle',
+  'patternSpacingX','patternSpacingY','patternOffset','patternGapY',
+  'lineHeightMultiplier','patternRotation',
+  'textStrokeWidth','textStrokeOpacity','textStrokeGradientAngle'
+]
+
+const updateWatermark = () => {
+  numFields.forEach(f => { localWatermark[f] = Number(localWatermark[f]) || 0 })
+  localWatermark.fontSize = localWatermark.fontSize || 32
   emit('update:watermark', { ...localWatermark })
 }
 
