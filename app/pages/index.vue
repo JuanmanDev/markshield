@@ -329,11 +329,15 @@
           <a href="#" class="hover:text-primary transition-colors">Terms</a>
         </div>
       </div>
+      <div class="max-w-6xl mx-auto mt-8 pt-6 border-t border-white/5 text-center text-[10px] tracking-widest uppercase text-outline">
+        v{{ config.public.version }}
+      </div>
     </footer>
   </div>
 </template>
 
 <script setup>
+const config = useRuntimeConfig()
 const { t, locale, setLocale } = useI18n()
 
 const toggleLanguage = () => {

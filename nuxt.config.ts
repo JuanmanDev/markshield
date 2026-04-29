@@ -1,6 +1,12 @@
 import { defineNuxtConfig } from 'nuxt/config'
+import packageJson from './package.json'
 
 export default defineNuxtConfig({
+  runtimeConfig: {
+    public: {
+      version: packageJson.version
+    }
+  },
   // Enable necessary modules
   modules: [
     '@nuxt/ui',
