@@ -16,12 +16,18 @@
       </nav>
 
       <div class="flex items-center gap-4">
-        <button
-          class="p-2 hover:bg-white/5 rounded-lg transition-all text-on-surface-variant hover:text-primary"
-          @click="toggleLanguage"
-        >
-          <span class="material-symbols-outlined">language</span>
-        </button>
+        <div class="relative flex items-center gap-1 text-on-surface-variant">
+          <span class="material-symbols-outlined text-lg pointer-events-none">language</span>
+          <select
+            :value="locale"
+            class="appearance-none bg-transparent text-xs font-semibold uppercase tracking-widest cursor-pointer hover:text-primary transition-colors focus:outline-none pr-1"
+            @change="setLocale($event.target.value)"
+          >
+            <option v-for="loc in locales" :key="loc.code" :value="loc.code" class="bg-surface text-on-surface">
+              {{ loc.name }}
+            </option>
+          </select>
+        </div>
         <NuxtLink
           to="/tool"
           class="px-6 py-2.5 text-xs font-bold bg-primary text-on-primary rounded-xl shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest"
@@ -70,161 +76,227 @@
     </section>
 
     <!-- Examples Showcase Section -->
-    <section id="examples" class="py-16 md:py-24 px-6 md:px-8">
-      <div class="max-w-7xl mx-auto">
-        <!-- Section Header -->
-        <div class="text-center mb-12 md:mb-16">
-          <h2 class="text-3xl md:text-5xl font-black tracking-tightest mb-4">Watermark Examples</h2>
-          <p class="text-base md:text-lg text-on-surface-variant max-w-2xl mx-auto px-4">See how professionals use MarkShield to protect their work</p>
-        </div>
+    <!-- Examples Showcase Section -->
+    <section id="examples" class="pt-16 md:pt-24">
 
-        <!-- Example Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          <!-- Example 1: Photography -->
-          <div class="group relative rounded-2xl overflow-hidden bg-surface-container border border-white/5 hover:border-primary/30 transition-all duration-500">
-            <div class="aspect-[4/3] relative overflow-hidden bg-gradient-to-br from-violet-500/20 to-indigo-500/20">
-              <!-- Simulated Photo -->
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-3/4 h-3/4 rounded-lg bg-surface-container-highest/50 flex items-center justify-center">
-                  <span class="material-symbols-outlined text-6xl text-primary/40">photo_camera</span>
-                </div>
-              </div>
-              <!-- Watermark Overlay -->
-              <div class="absolute inset-0 flex items-center justify-center opacity-30">
-                <span class="text-lg md:text-xl font-bold text-white rotate-[-30deg]">© John Doe</span>
-              </div>
-            </div>
-            <div class="p-5 md:p-6">
-              <h3 class="text-base md:text-lg font-bold mb-2">Photography Protection</h3>
-              <p class="text-xs md:text-sm text-on-surface-variant leading-relaxed">Subtle corner signatures that don't distract from your beautiful shots but prevent unauthorized use.</p>
-              <div class="flex items-center gap-2 mt-3">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-primary">Signature Style</span>
+      <!-- Section header -->
+      <div class="max-w-4xl mx-auto px-6 md:px-8 pb-12 md:pb-16 text-center">
+        <h2 class="text-3xl md:text-5xl font-black tracking-tightest mb-4">Watermark Examples</h2>
+        <p class="text-base md:text-lg text-on-surface-variant max-w-2xl mx-auto">Real situations where a simple watermark makes a big difference.</p>
+      </div>
+
+      <!-- ── EXAMPLE 1: DNI / Passport collage ── -->
+      <div class="example-block">
+        <div class="flex h-[55vh] md:h-[88vh]">
+
+          <!-- BEFORE: clean collage -->
+          <div class="ex-before flex-1 relative overflow-hidden bg-gradient-to-br from-slate-950 to-blue-950/70">
+            <div class="dot-grid absolute inset-0"></div>
+
+            <!-- DNI 1: top-center, frontmost -->
+            <div class="collage-c1 absolute" style="top:5%;left:16%;width:54%;z-index:3;">
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/20">
+                <img src="/pictures/dni1.jpg" alt="DNI" class="w-full block" />
               </div>
             </div>
+            <!-- DNI 2: bottom-right -->
+            <div class="collage-c2 absolute" style="bottom:12%;right:4%;width:48%;z-index:2;">
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/20">
+                <img src="/pictures/dni2.jpg" alt="DNI" class="w-full block" />
+              </div>
+            </div>
+            <!-- Pasaporte: bottom-left, behind -->
+            <div class="collage-c3 absolute" style="bottom:4%;left:3%;width:52%;z-index:1;">
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/20">
+                <img src="/pictures/pasporte.jpg" alt="Passport" class="w-full block" />
+              </div>
+            </div>
+
+            <span class="absolute top-4 left-4 card-tag" style="z-index:10">Original</span>
           </div>
 
-          <!-- Example 2: Tiled Pattern -->
-          <div class="group relative rounded-2xl overflow-hidden bg-surface-container border border-white/5 hover:border-primary/30 transition-all duration-500">
-            <div class="aspect-[4/3] relative overflow-hidden bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
-              <!-- Simulated Artwork -->
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-3/4 h-3/4 rounded-lg bg-surface-container-highest/50 flex items-center justify-center">
-                  <span class="material-symbols-outlined text-6xl text-blue-400/40">palette</span>
-                </div>
-              </div>
-              <!-- Tiled Watermark -->
-              <div class="absolute inset-0 opacity-20">
-                <div class="grid grid-cols-4 grid-rows-3 gap-4 p-4">
-                  <template v-for="i in 12" :key="i">
-                    <span class="text-xs font-bold text-white rotate-[-45deg]">SAMPLE</span>
+          <!-- Arrow bridge -->
+          <div class="ex-arrow w-12 md:w-16 flex-shrink-0 flex flex-col items-center justify-center z-10 bg-background">
+            <div class="w-px flex-1 bg-gradient-to-b from-transparent to-primary/25"></div>
+            <div class="arrow-ring my-2 w-10 h-10 rounded-full bg-surface-container border border-primary/40 flex items-center justify-center shadow-xl shadow-primary/20 flex-shrink-0">
+              <span class="material-symbols-outlined text-primary text-lg">arrow_forward</span>
+            </div>
+            <div class="w-px flex-1 bg-gradient-to-t from-transparent to-primary/25"></div>
+          </div>
+
+          <!-- AFTER: same collage with individual watermarks per document -->
+          <div class="ex-after flex-1 relative overflow-hidden bg-gradient-to-br from-slate-950 to-blue-950/70">
+            <div class="dot-grid absolute inset-0"></div>
+
+            <!-- DNI 1 watermarked: hotel registration -->
+            <div class="collage-c1 absolute" style="top:5%;left:16%;width:54%;z-index:3;">
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-primary/30 relative">
+                <img src="/pictures/dni1.jpg" alt="DNI watermarked" class="w-full block" />
+                <div class="wm-band">
+                  <template v-for="i in 40" :key="i">
+                    <span>Only for hotel registration · May 2026 · Madrid &nbsp;&nbsp;</span>
                   </template>
                 </div>
               </div>
             </div>
-            <div class="p-5 md:p-6">
-              <h3 class="text-base md:text-lg font-bold mb-2">Portfolio Samples</h3>
-              <p class="text-xs md:text-sm text-on-surface-variant leading-relaxed">Repeated patterns across the entire image, perfect for showcasing work while preventing theft.</p>
-              <div class="flex items-center gap-2 mt-3">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-400">Tiled Pattern</span>
+            <!-- DNI 2 watermarked: rental contract -->
+            <div class="collage-c2 absolute" style="bottom:12%;right:4%;width:48%;z-index:2;">
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-primary/30 relative">
+                <img src="/pictures/dni2.jpg" alt="DNI watermarked" class="w-full block" />
+                <div class="wm-band">
+                  <template v-for="i in 40" :key="i">
+                    <span>Only for rental property contract &nbsp;&nbsp;&nbsp;&nbsp;</span>
+                  </template>
+                </div>
               </div>
             </div>
-          </div>
+            <!-- Pasaporte watermarked: certificate of birth -->
+            <div class="collage-c3 absolute" style="bottom:4%;left:3%;width:52%;z-index:1;">
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-primary/30 relative">
+                <img src="/pictures/pasporte.jpg" alt="Passport watermarked" class="w-full block" />
+                <div class="wm-band">
+                  <template v-for="i in 40" :key="i">
+                    <span>Only for certificate of birth · Jun 2027 &nbsp;&nbsp;&nbsp;&nbsp;</span>
+                  </template>
+                </div>
+              </div>
+            </div>
 
-          <!-- Example 3: Document ID -->
-          <div class="group relative rounded-2xl overflow-hidden bg-surface-container border border-white/5 hover:border-primary/30 transition-all duration-500">
-            <div class="aspect-[4/3] relative overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/20">
-              <!-- Simulated ID Document -->
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-3/4 h-3/4 rounded-lg bg-surface-container-highest/50 flex items-center justify-center">
-                  <span class="material-symbols-outlined text-6xl text-purple-400/40">badge</span>
-                </div>
-              </div>
-              <!-- ID Watermark -->
-              <div class="absolute inset-0 flex items-center justify-center opacity-40">
-                <div class="px-4 py-2 bg-black/50 rounded-lg">
-                  <span class="text-sm md:text-base font-bold text-purple-300">FOR VERIFICATION ONLY</span>
-                </div>
-              </div>
-            </div>
-            <div class="p-5 md:p-6">
-              <h3 class="text-base md:text-lg font-bold mb-2">ID & Document Security</h3>
-              <p class="text-xs md:text-sm text-on-surface-variant leading-relaxed">Clear verification marks that prevent document misuse while maintaining readability.</p>
-              <div class="flex items-center gap-2 mt-3">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-purple-400">Security Mark</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Example 4: Brand Logo -->
-          <div class="group relative rounded-2xl overflow-hidden bg-surface-container border border-white/5 hover:border-primary/30 transition-all duration-500">
-            <div class="aspect-[4/3] relative overflow-hidden bg-gradient-to-br from-amber-500/20 to-orange-500/20">
-              <!-- Simulated Design -->
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-3/4 h-3/4 rounded-lg bg-surface-container-highest/50 flex items-center justify-center">
-                  <span class="material-symbols-outlined text-6xl text-amber-400/40">brush</span>
-                </div>
-              </div>
-              <!-- Brand Watermark -->
-              <div class="absolute bottom-4 right-4 opacity-60">
-                <span class="text-sm font-bold text-white">Studio Pro ©</span>
-              </div>
-            </div>
-            <div class="p-5 md:p-6">
-              <h3 class="text-base md:text-lg font-bold mb-2">Brand Identity</h3>
-              <p class="text-xs md:text-sm text-on-surface-variant leading-relaxed">Professional brand signatures that establish ownership and build recognition across your portfolio.</p>
-              <div class="flex items-center gap-2 mt-3">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Brand Mark</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Example 5: Draft Mode -->
-          <div class="group relative rounded-2xl overflow-hidden bg-surface-container border border-white/5 hover:border-primary/30 transition-all duration-500">
-            <div class="aspect-[4/3] relative overflow-hidden bg-gradient-to-br from-gray-500/20 to-slate-500/20">
-              <!-- Simulated Draft -->
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-3/4 h-3/4 rounded-lg bg-surface-container-highest/50 flex items-center justify-center">
-                  <span class="material-symbols-outlined text-6xl text-gray-400/40">draft</span>
-                </div>
-              </div>
-              <!-- Draft Watermark -->
-              <div class="absolute inset-0 flex items-center justify-center opacity-15">
-                <span class="text-4xl md:text-6xl font-black text-white rotate-[-45deg]">DRAFT</span>
-              </div>
-            </div>
-            <div class="p-5 md:p-6">
-              <h3 class="text-base md:text-lg font-bold mb-2">Draft & Review</h3>
-              <p class="text-xs md:text-sm text-on-surface-variant leading-relaxed">Large, clear markers for works in progress that indicate the document status without ruining the design.</p>
-              <div class="flex items-center gap-2 mt-3">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Draft Status</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Example 6: Gradient Effect -->
-          <div class="group relative rounded-2xl overflow-hidden bg-surface-container border border-white/5 hover:border-primary/30 transition-all duration-500">
-            <div class="aspect-[4/3] relative overflow-hidden bg-gradient-to-br from-emerald-500/20 to-teal-500/20">
-              <!-- Simulated Art -->
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-3/4 h-3/4 rounded-lg bg-surface-container-highest/50 flex items-center justify-center">
-                  <span class="material-symbols-outlined text-6xl text-emerald-400/40">auto_awesome</span>
-                </div>
-              </div>
-              <!-- Gradient Watermark -->
-              <div class="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-50">
-                <span class="text-lg font-bold bg-gradient-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent">Premium Art</span>
-              </div>
-            </div>
-            <div class="p-5 md:p-6">
-              <h3 class="text-base md:text-lg font-bold mb-2">Gradient Effects</h3>
-              <p class="text-xs md:text-sm text-on-surface-variant leading-relaxed">Beautiful gradient watermarks that complement your artwork while maintaining professional protection.</p>
-              <div class="flex items-center gap-2 mt-3">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Gradient Style</span>
-              </div>
-            </div>
+            <span class="absolute top-4 left-4 card-tag card-tag-active" style="z-index:10">Watermarked</span>
           </div>
         </div>
+
+        <div class="ex-desc py-12 md:py-16 px-6 text-center max-w-2xl mx-auto">
+          <h3 class="text-xl md:text-3xl font-black mb-3">Protect Your Identity Documents</h3>
+          <p class="text-sm md:text-base text-on-surface-variant leading-relaxed">Mark your passport or DNI with the exact purpose before sharing it — hotel check-in, rental contract, certificate request. Prevents misuse like opening bank accounts or getting credit in your name.</p>
+          <span class="inline-block mt-4 text-[10px] font-bold uppercase tracking-widest text-blue-400 border border-blue-400/30 px-4 py-2 rounded-full">Identity Protection</span>
+        </div>
       </div>
+
+      <!-- ── EXAMPLE 2: Wedding photography collage ── -->
+      <div class="example-block border-t border-white/5">
+        <div class="flex h-[55vh] md:h-[88vh]">
+
+          <!-- BEFORE: clean wedding collage -->
+          <div class="ex-before flex-1 relative overflow-hidden bg-gradient-to-br from-slate-950 to-violet-950/60">
+
+            <!-- wedding.avif: main/largest -->
+            <div class="wedding-c1 absolute" style="top:6%;left:10%;width:68%;z-index:3;">
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/20">
+                <img src="/pictures/wedding.avif" alt="Wedding" class="w-full block" />
+              </div>
+            </div>
+            <!-- wedding2.jpeg: top-right -->
+            <div class="wedding-c2 absolute" style="top:3%;right:2%;width:44%;z-index:2;">
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/20">
+                <img src="/pictures/wedding2.jpeg" alt="Wedding 2" class="w-full block" />
+              </div>
+            </div>
+            <!-- wedding3.webp: bottom-left -->
+            <div class="wedding-c3 absolute" style="bottom:10%;left:14%;width:66%;z-index:1;">
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/20">
+                <img src="/pictures/wedding3.webp" alt="Wedding 3" class="w-full block" />
+              </div>
+            </div>
+
+            <span class="absolute top-4 left-4 card-tag" style="z-index:10">Original</span>
+          </div>
+
+          <!-- Arrow bridge -->
+          <div class="ex-arrow w-12 md:w-16 flex-shrink-0 flex flex-col items-center justify-center z-10 bg-background">
+            <div class="w-px flex-1 bg-gradient-to-b from-transparent to-primary/25"></div>
+            <div class="arrow-ring my-2 w-10 h-10 rounded-full bg-surface-container border border-primary/40 flex items-center justify-center shadow-xl shadow-primary/20 flex-shrink-0">
+              <span class="material-symbols-outlined text-primary text-lg">arrow_forward</span>
+            </div>
+            <div class="w-px flex-1 bg-gradient-to-t from-transparent to-primary/25"></div>
+          </div>
+
+          <!-- AFTER: same wedding collage with studio watermark on each -->
+          <div class="ex-after flex-1 relative overflow-hidden bg-gradient-to-br from-slate-950 to-violet-950/60">
+
+            <!-- wedding.avif watermarked -->
+            <div class="wedding-c1 absolute" style="top:6%;left:10%;width:68%;z-index:3;">
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-primary/30 relative">
+                <img src="/pictures/wedding.avif" alt="Wedding watermarked" class="w-full block" />
+                <div class="wm-band wm-violet">
+                  <template v-for="i in 40" :key="i">
+                    <span>© Foto Estudio — Preview Only &nbsp;&nbsp;&nbsp;&nbsp;</span>
+                  </template>
+                </div>
+              </div>
+            </div>
+            <!-- wedding2 watermarked -->
+            <div class="wedding-c2 absolute" style="top:3%;right:2%;width:44%;z-index:2;">
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-primary/30 relative">
+                <img src="/pictures/wedding2.jpeg" alt="Wedding 2 watermarked" class="w-full block" />
+                <div class="wm-band wm-violet">
+                  <template v-for="i in 40" :key="i">
+                    <span>© Foto Estudio &nbsp;&nbsp;&nbsp;&nbsp;</span>
+                  </template>
+                </div>
+              </div>
+            </div>
+            <!-- wedding3 watermarked -->
+            <div class="wedding-c3 absolute" style="bottom:10%;left:14%;width:66%;z-index:1;">
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-primary/30 relative">
+                <img src="/pictures/wedding3.webp" alt="Wedding 3 watermarked" class="w-full block" />
+                <div class="wm-band wm-violet">
+                  <template v-for="i in 40" :key="i">
+                    <span>© Foto Estudio &nbsp;&nbsp;&nbsp;&nbsp;</span>
+                  </template>
+                </div>
+              </div>
+            </div>
+
+            <span class="absolute top-4 left-4 card-tag card-tag-active" style="z-index:10">Watermarked</span>
+          </div>
+        </div>
+
+        <div class="ex-desc py-12 md:py-16 px-6 text-center max-w-2xl mx-auto">
+          <h3 class="text-xl md:text-3xl font-black mb-3">Photography Studio & Events</h3>
+          <p class="text-sm md:text-base text-on-surface-variant leading-relaxed">Share wedding or event previews with your studio name tiled across each photo. Clients see the quality — clean files ship only once payment is confirmed.</p>
+          <span class="inline-block mt-4 text-[10px] font-bold uppercase tracking-widest text-violet-400 border border-violet-400/30 px-4 py-2 rounded-full">Studio Watermark</span>
+        </div>
+      </div>
+
+      <!-- ── EXAMPLE 3: Artwork preview / Content gate ── -->
+      <div class="example-block border-t border-white/5">
+        <div class="flex h-[55vh] md:h-[88vh]">
+
+          <div class="ex-before flex-1 relative overflow-hidden">
+            <img src="/pictures/monalisa.webp" alt="Artwork" class="ex-zoom-out w-full h-full object-cover object-top" />
+            <span class="absolute top-4 left-4 card-tag">Original</span>
+          </div>
+
+          <div class="ex-arrow w-12 md:w-16 flex-shrink-0 flex flex-col items-center justify-center z-10 bg-background">
+            <div class="w-px flex-1 bg-gradient-to-b from-transparent to-primary/25"></div>
+            <div class="arrow-ring my-2 w-10 h-10 rounded-full bg-surface-container border border-primary/40 flex items-center justify-center shadow-xl shadow-primary/20 flex-shrink-0">
+              <span class="material-symbols-outlined text-primary text-lg">arrow_forward</span>
+            </div>
+            <div class="w-px flex-1 bg-gradient-to-t from-transparent to-primary/25"></div>
+          </div>
+
+          <div class="ex-after flex-1 relative overflow-hidden">
+            <img src="/pictures/monalisa.webp" alt="Artwork locked" class="ex-zoom-in w-full h-full object-cover object-top" />
+            <div class="absolute bottom-0 left-0 right-0 h-[50%] pointer-events-none" style="background:linear-gradient(to top,rgba(5,5,10,0.96) 50%,transparent);">
+              <div class="absolute bottom-0 left-0 right-0 flex flex-col items-center justify-end pb-10 gap-3">
+                <div class="w-12 h-12 rounded-full bg-amber-400/15 border border-amber-400/30 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-amber-400 text-2xl">lock</span>
+                </div>
+                <span class="text-xs font-black text-amber-300/70 tracking-[0.2em] uppercase select-none">Purchase to unlock full artwork</span>
+              </div>
+            </div>
+            <span class="absolute top-4 left-4 card-tag card-tag-active">Watermarked</span>
+          </div>
+        </div>
+
+        <div class="ex-desc py-12 md:py-16 px-6 text-center max-w-2xl mx-auto">
+          <h3 class="text-xl md:text-3xl font-black mb-3">Preview Without Full Access</h3>
+          <p class="text-sm md:text-base text-on-surface-variant leading-relaxed">Cover the lower portion of a painting, book, or document. Viewers see enough to decide — the full content stays protected behind a purchase or subscription.</p>
+          <span class="inline-block mt-4 text-[10px] font-bold uppercase tracking-widest text-amber-400 border border-amber-400/30 px-4 py-2 rounded-full">Content Gate</span>
+        </div>
+      </div>
+
     </section>
 
     <!-- Specs / Grid -->
@@ -338,11 +410,7 @@
 
 <script setup>
 const config = useRuntimeConfig()
-const { t, locale, setLocale } = useI18n()
-
-const toggleLanguage = () => {
-  setLocale(locale.value === 'en' ? 'es' : 'en')
-}
+const { t, locale, setLocale, locales } = useI18n()
 
 useHead({
   title: 'MarkShield - Professional Watermark Studio',
@@ -353,11 +421,200 @@ useHead({
 </script>
 
 <style scoped>
+/* ── Hero fade-in ── */
 .animate-fade-in {
   animation: fadeIn 1s ease-out;
 }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Card labels ── */
+.card-tag {
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  color: rgba(255,255,255,0.5);
+}
+.card-tag-active {
+  background: rgba(99,102,241,0.18);
+  color: #818cf8;
+}
+
+/* ── Dot-grid background texture ── */
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────
+   Collage cards — CSS custom properties drive both
+   the final resting rotation and the fly-in direction
+   so a single @keyframes handles all three cards.
+───────────────────────────────────────────────── */
+
+/* Identity collage */
+.collage-c1 { --rot: -5deg;  --fly-x:   0px;  --fly-y: -80px; }
+.collage-c2 { --rot:  4deg;  --fly-x:  90px;  --fly-y:   0px; }
+.collage-c3 { --rot: -2deg;  --fly-x: -60px;  --fly-y:  70px; }
+
+/* Wedding collage */
+.wedding-c1 { --rot: -2deg;  --fly-x:   0px;  --fly-y: -80px; }
+.wedding-c2 { --rot:  5deg;  --fly-x:  90px;  --fly-y:   0px; }
+.wedding-c3 { --rot:  3deg;  --fly-x: -60px;  --fly-y:  70px; }
+
+/* Shared animation — staggered entry ranges */
+.collage-c1, .collage-c2, .collage-c3,
+.wedding-c1, .wedding-c2, .wedding-c3 {
+  animation: collageFly linear both;
+  animation-timeline: view();
+}
+.collage-c1, .wedding-c1 { animation-range: entry  0% entry 55%; }
+.collage-c2, .wedding-c2 { animation-range: entry  9% entry 64%; }
+.collage-c3, .wedding-c3 { animation-range: entry 18% entry 73%; }
+
+@keyframes collageFly {
+  from {
+    opacity: 0;
+    transform: translate(var(--fly-x), var(--fly-y)) rotate(var(--rot));
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) rotate(var(--rot));
+    filter: blur(0px);
+  }
+}
+
+/* ── Watermark repeated-text band ──────────────────
+   Centered at 50%/50% then expanded to 200%×200%
+   so it always covers the full card at any screen
+   size. The 40 text rows fill ~1 000 px height which
+   exceeds the tallest card on any viewport.
+─────────────────────────────────────────────────── */
+.wm-band {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 200%;
+  transform: translate(-50%, -50%) rotate(-35deg);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.7;
+  overflow: hidden;
+}
+.wm-band span {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 900;
+  color: rgba(20, 20, 100, 0.9);
+  white-space: nowrap;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  /* Halo ensures legibility on light document backgrounds */
+  text-shadow:
+    0 0 6px rgba(255,255,255,1),
+    0 1px 0  rgba(255,255,255,0.9),
+    0 -1px 0 rgba(255,255,255,0.9);
+}
+/* Wedding — dark photos need light text + dark shadow */
+.wm-violet span {
+  color: rgba(230, 215, 255, 0.95);
+  text-shadow:
+    0 1px 5px rgba(0,0,0,1),
+    0 0 14px rgba(0,0,0,0.8);
+}
+
+/* ─────────────────────────────────────────────────
+   Scroll-driven animations — view() references the
+   main page scroll (window) since there is no inner
+   scroll container.
+───────────────────────────────────────────────── */
+
+/* Entrance: before panel slides from left */
+.ex-before {
+  animation: slideFromLeft linear both;
+  animation-timeline: view();
+  animation-range: entry 5% entry 65%;
+}
+
+/* Entrance: after panel slides from right */
+.ex-after {
+  animation: slideFromRight linear both;
+  animation-timeline: view();
+  animation-range: entry 10% entry 70%;
+}
+
+/* Entrance: arrow bridge pops in */
+.ex-arrow {
+  animation: popIn linear both;
+  animation-timeline: view();
+  animation-range: entry 8% entry 55%;
+}
+
+/* Entrance: caption fades up */
+.ex-desc {
+  animation: fadeUp linear both;
+  animation-timeline: view();
+  animation-range: entry 30% exit 5%;
+}
+
+/* Scroll-driven zoom on the <img> / inner div — tied to view progress.
+   Before (left): starts slightly zoomed in, settles to normal/smaller.
+   After  (right): starts slightly zoomed out, grows as element centers. */
+.ex-zoom-out {
+  animation: zoomOut linear both;
+  animation-timeline: view();
+  animation-range: entry 0% exit 100%;
+}
+.ex-zoom-in {
+  animation: zoomIn linear both;
+  animation-timeline: view();
+  animation-range: entry 0% exit 100%;
+}
+
+@keyframes slideFromLeft {
+  from { opacity: 0; transform: translateX(-80px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideFromRight {
+  from { opacity: 0; transform: translateX(80px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.2); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes zoomOut {
+  from { transform: scale(1.1); }
+  to   { transform: scale(0.95); }
+}
+@keyframes zoomIn {
+  from { transform: scale(0.95); }
+  to   { transform: scale(1.1); }
+}
+
+/* Arrow pulse */
+.arrow-ring {
+  animation: arrowPulse 2.4s ease-in-out infinite;
+}
+@keyframes arrowPulse {
+  0%, 100% { transform: scale(1);    box-shadow: 0 0 0 0   rgba(99,102,241,0.3); }
+  50%       { transform: scale(1.1); box-shadow: 0 0 0 12px rgba(99,102,241,0);   }
 }
 </style>

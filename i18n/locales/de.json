@@ -1,0 +1,88 @@
+{
+  "app": {
+    "title": "MarkShield Wasserzeichen-Studio",
+    "description": "Fügen Sie anpassbare Textwasserzeichen zu Ihren Bildern und Dokumenten hinzu"
+  },
+  "upload": {
+    "title": "Dateien Hochladen",
+    "dragDrop": "Bilder oder PDFs hier ablegen",
+    "or": "oder",
+    "select": "Dateien Auswählen",
+    "preview": "Vorschau",
+    "previewImage": "Bildvorschau",
+    "remove": "Datei entfernen",
+    "paste": "Aus Zwischenablage einfügen",
+    "clipboardInfo": "Dateien direkt aus der Zwischenablage einfügen"
+  },
+  "watermark": {
+    "title": "Wasserzeichen-Einstellungen"
+  },
+  "config": {
+    "text": "Text",
+    "textPlaceholder": "Wasserzeichen-Text eingeben",
+    "fontSize": "Schriftgröße",
+    "rotation": "Drehung",
+    "color": "Farbe",
+    "textColor": "Textfarbe",
+    "opacity": "Deckkraft",
+    "positionX": "Position X",
+    "positionY": "Position Y",
+    "apply": "Zur Liste hinzufügen",
+    "gradientStart": "Startfarbe",
+    "gradientEnd": "Endfarbe",
+    "gradientAngle": "Verlaufswinkel",
+    "randomColorRange": "Farbbereich",
+    "randomOpacity": "Deckkraftbereich",
+    "background": "Hintergrund",
+    "backgroundColor": "Farbe",
+    "backgroundOpacity": "Deckkraft",
+    "backgroundPadding": "Innenabstand",
+    "backgroundRadius": "Eckenradius",
+    "border": "Rahmen",
+    "borderColor": "Farbe",
+    "borderWidth": "Breite",
+    "borderOpacity": "Deckkraft",
+    "borderStyle": "Stil",
+    "borderRadius": "Eckenradius",
+    "repeat": "Wiederholungsmuster",
+    "patternSpacingX": "Horizontaler Abstand",
+    "patternSpacingY": "Vertikaler Abstand",
+    "patternOffset": "Zeilenversatz",
+    "patternRandomOffset": "Zufälliger Versatz"
+  },
+  "manager": {
+    "title": "Wasserzeichen-Manager",
+    "edit": "Bearbeiten",
+    "remove": "Entfernen",
+    "fontSize": "Schriftgröße",
+    "color": "Farbe",
+    "add": "Wasserzeichen hinzufügen",
+    "applyAll": "Auf alle anwenden",
+    "empty": "Noch keine Wasserzeichen hinzugefügt"
+  },
+  "preview": {
+    "title": "Vorschau",
+    "image": "Bild",
+    "processing": "Verarbeitung...",
+    "dimensions": "Abmessungen",
+    "empty": "Noch keine Dateien hochgeladen",
+    "upload": "Klicken zum Hochladen von Bildern oder PDFs",
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern",
+    "reset": "Ansicht zurücksetzen"
+  },
+  "actions": {
+    "apply": "Wasserzeichen anwenden",
+    "download": "Herunterladen",
+    "reset": "Alles zurücksetzen",
+    "getStarted": "Loslegen",
+    "batchProcess": "Stapelverarbeitung"
+  },
+  "suggestions": {
+    "confidential_desc": "Fettes rotes Wasserzeichen für vertrauliche Dokumente",
+    "tiled_desc": "Wiederholtes Muster über das gesamte Bild",
+    "identity_desc": "Mittlere Sichtbarkeit zur Identitätsverifizierung",
+    "brand_desc": "Dezente Studio-Signatur für Kunstwerke",
+    "draft_desc": "Hellgrauer Marker für Entwürfe"
+  }
+}

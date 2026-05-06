@@ -1,0 +1,88 @@
+{
+  "app": {
+    "title": "MarkShield Studio de Filigrane",
+    "description": "Ajoutez des filigranes texte personnalisables à vos images et documents"
+  },
+  "upload": {
+    "title": "Télécharger des Fichiers",
+    "dragDrop": "Glissez-déposez des images ou des PDF ici",
+    "or": "ou",
+    "select": "Sélectionner des Fichiers",
+    "preview": "Aperçu",
+    "previewImage": "Aperçu de l'image",
+    "remove": "Supprimer le fichier",
+    "paste": "Coller depuis le Presse-papiers",
+    "clipboardInfo": "Collez des fichiers directement depuis votre presse-papiers"
+  },
+  "watermark": {
+    "title": "Paramètres du Filigrane"
+  },
+  "config": {
+    "text": "Texte",
+    "textPlaceholder": "Entrez le texte du filigrane",
+    "fontSize": "Taille de Police",
+    "rotation": "Rotation",
+    "color": "Couleur",
+    "textColor": "Couleur du Texte",
+    "opacity": "Opacité",
+    "positionX": "Position X",
+    "positionY": "Position Y",
+    "apply": "Ajouter à la Liste",
+    "gradientStart": "Couleur de Début",
+    "gradientEnd": "Couleur de Fin",
+    "gradientAngle": "Angle du Dégradé",
+    "randomColorRange": "Plage de Couleur",
+    "randomOpacity": "Plage d'Opacité",
+    "background": "Arrière-plan",
+    "backgroundColor": "Couleur",
+    "backgroundOpacity": "Opacité",
+    "backgroundPadding": "Rembourrage",
+    "backgroundRadius": "Rayon des Coins",
+    "border": "Bordure",
+    "borderColor": "Couleur",
+    "borderWidth": "Largeur",
+    "borderOpacity": "Opacité",
+    "borderStyle": "Style",
+    "borderRadius": "Rayon des Coins",
+    "repeat": "Motif Répété",
+    "patternSpacingX": "Espacement Horizontal",
+    "patternSpacingY": "Espacement Vertical",
+    "patternOffset": "Décalage de Ligne",
+    "patternRandomOffset": "Décalage Aléatoire"
+  },
+  "manager": {
+    "title": "Gestionnaire de Filigranes",
+    "edit": "Modifier",
+    "remove": "Supprimer",
+    "fontSize": "Taille de Police",
+    "color": "Couleur",
+    "add": "Ajouter un Filigrane",
+    "applyAll": "Appliquer à Tous",
+    "empty": "Aucun filigrane ajouté pour l'instant"
+  },
+  "preview": {
+    "title": "Aperçu",
+    "image": "Image",
+    "processing": "Traitement en cours...",
+    "dimensions": "Dimensions",
+    "empty": "Aucun fichier téléchargé pour l'instant",
+    "upload": "Cliquez pour télécharger des images ou des PDF",
+    "zoomIn": "Zoom Avant",
+    "zoomOut": "Zoom Arrière",
+    "reset": "Réinitialiser la Vue"
+  },
+  "actions": {
+    "apply": "Appliquer les Filigranes",
+    "download": "Télécharger",
+    "reset": "Tout Réinitialiser",
+    "getStarted": "Commencer",
+    "batchProcess": "Traitement par Lot"
+  },
+  "suggestions": {
+    "confidential_desc": "Filigrane rouge en gras pour les documents sensibles",
+    "tiled_desc": "Motif répété sur toute l'image",
+    "identity_desc": "Visibilité moyenne pour la vérification d'identité",
+    "brand_desc": "Signature de studio subtile pour les œuvres d'art",
+    "draft_desc": "Marqueur gris clair pour les brouillons"
+  }
+}

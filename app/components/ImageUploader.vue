@@ -171,7 +171,8 @@ const clearAll = () => {
 defineExpose({
   triggerFileInput,
   removeImage,
-  clearAll
+  clearAll,
+  processFiles
 })
 
 const emit = defineEmits(['images-uploaded'])

@@ -1,0 +1,88 @@
+{
+  "app": {
+    "title": "MarkShield ウォーターマークスタジオ",
+    "description": "画像やドキュメントにカスタマイズ可能なテキスト透かしを追加"
+  },
+  "upload": {
+    "title": "ファイルをアップロード",
+    "dragDrop": "画像またはPDFをここにドラッグ＆ドロップ",
+    "or": "または",
+    "select": "ファイルを選択",
+    "preview": "プレビュー",
+    "previewImage": "画像をプレビュー",
+    "remove": "ファイルを削除",
+    "paste": "クリップボードから貼り付け",
+    "clipboardInfo": "クリップボードから直接ファイルを貼り付け"
+  },
+  "watermark": {
+    "title": "ウォーターマーク設定"
+  },
+  "config": {
+    "text": "テキスト",
+    "textPlaceholder": "ウォーターマークテキストを入力",
+    "fontSize": "フォントサイズ",
+    "rotation": "回転",
+    "color": "色",
+    "textColor": "テキストの色",
+    "opacity": "不透明度",
+    "positionX": "X位置",
+    "positionY": "Y位置",
+    "apply": "リストに追加",
+    "gradientStart": "開始色",
+    "gradientEnd": "終了色",
+    "gradientAngle": "グラデーション角度",
+    "randomColorRange": "色の範囲",
+    "randomOpacity": "不透明度の範囲",
+    "background": "背景",
+    "backgroundColor": "色",
+    "backgroundOpacity": "不透明度",
+    "backgroundPadding": "パディング",
+    "backgroundRadius": "角の半径",
+    "border": "ボーダー",
+    "borderColor": "色",
+    "borderWidth": "幅",
+    "borderOpacity": "不透明度",
+    "borderStyle": "スタイル",
+    "borderRadius": "角の半径",
+    "repeat": "繰り返しパターン",
+    "patternSpacingX": "水平間隔",
+    "patternSpacingY": "垂直間隔",
+    "patternOffset": "行オフセット",
+    "patternRandomOffset": "ランダムオフセット"
+  },
+  "manager": {
+    "title": "ウォーターマークマネージャー",
+    "edit": "編集",
+    "remove": "削除",
+    "fontSize": "フォントサイズ",
+    "color": "色",
+    "add": "ウォーターマークを追加",
+    "applyAll": "すべてに適用",
+    "empty": "まだウォーターマークが追加されていません"
+  },
+  "preview": {
+    "title": "プレビュー",
+    "image": "画像",
+    "processing": "処理中...",
+    "dimensions": "サイズ",
+    "empty": "まだファイルがアップロードされていません",
+    "upload": "クリックして画像またはPDFをアップロード",
+    "zoomIn": "拡大",
+    "zoomOut": "縮小",
+    "reset": "表示をリセット"
+  },
+  "actions": {
+    "apply": "ウォーターマークを適用",
+    "download": "ダウンロード",
+    "reset": "すべてリセット",
+    "getStarted": "始める",
+    "batchProcess": "バッチ処理"
+  },
+  "suggestions": {
+    "confidential_desc": "機密文書用の太字赤ウォーターマーク",
+    "tiled_desc": "画像全体に繰り返すパターン",
+    "identity_desc": "本人確認用の中程度の視認性",
+    "brand_desc": "芸術作品用の控えめなスタジオ署名",
+    "draft_desc": "下書き用の薄いグレーのマーカー"
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "app": {
+    "title": "MarkShield Estúdio de Marca d'Água",
+    "description": "Adicione marcas d'água de texto personalizáveis às suas imagens e documentos"
+  },
+  "upload": {
+    "title": "Enviar Arquivos",
+    "dragDrop": "Arraste e solte imagens ou PDFs aqui",
+    "or": "ou",
+    "select": "Selecionar Arquivos",
+    "preview": "Pré-visualizar",
+    "previewImage": "Pré-visualizar imagem",
+    "remove": "Remover arquivo",
+    "paste": "Colar da Área de Transferência",
+    "clipboardInfo": "Cole arquivos diretamente da área de transferência"
+  },
+  "watermark": {
+    "title": "Configurações de Marca d'Água"
+  },
+  "config": {
+    "text": "Texto",
+    "textPlaceholder": "Digite o texto da marca d'água",
+    "fontSize": "Tamanho da Fonte",
+    "rotation": "Rotação",
+    "color": "Cor",
+    "textColor": "Cor do Texto",
+    "opacity": "Opacidade",
+    "positionX": "Posição X",
+    "positionY": "Posição Y",
+    "apply": "Adicionar à Lista",
+    "gradientStart": "Cor Inicial",
+    "gradientEnd": "Cor Final",
+    "gradientAngle": "Ângulo do Gradiente",
+    "randomColorRange": "Intervalo de Cor",
+    "randomOpacity": "Intervalo de Opacidade",
+    "background": "Fundo",
+    "backgroundColor": "Cor",
+    "backgroundOpacity": "Opacidade",
+    "backgroundPadding": "Preenchimento",
+    "backgroundRadius": "Raio do Canto",
+    "border": "Borda",
+    "borderColor": "Cor",
+    "borderWidth": "Largura",
+    "borderOpacity": "Opacidade",
+    "borderStyle": "Estilo",
+    "borderRadius": "Raio do Canto",
+    "repeat": "Padrão de Repetição",
+    "patternSpacingX": "Espaçamento Horizontal",
+    "patternSpacingY": "Espaçamento Vertical",
+    "patternOffset": "Deslocamento de Linha",
+    "patternRandomOffset": "Deslocamento Aleatório"
+  },
+  "manager": {
+    "title": "Gerenciador de Marcas d'Água",
+    "edit": "Editar",
+    "remove": "Remover",
+    "fontSize": "Tamanho da Fonte",
+    "color": "Cor",
+    "add": "Adicionar Marca d'Água",
+    "applyAll": "Aplicar a Todos",
+    "empty": "Nenhuma marca d'água adicionada ainda"
+  },
+  "preview": {
+    "title": "Pré-visualização",
+    "image": "Imagem",
+    "processing": "Processando...",
+    "dimensions": "Dimensões",
+    "empty": "Nenhum arquivo enviado ainda",
+    "upload": "Clique para enviar imagens ou PDFs",
+    "zoomIn": "Ampliar",
+    "zoomOut": "Reduzir",
+    "reset": "Redefinir Visualização"
+  },
+  "actions": {
+    "apply": "Aplicar Marcas d'Água",
+    "download": "Baixar",
+    "reset": "Redefinir Tudo",
+    "getStarted": "Começar",
+    "batchProcess": "Processamento em Lote"
+  },
+  "suggestions": {
+    "confidential_desc": "Marca d'água vermelha em negrito para documentos sensíveis",
+    "tiled_desc": "Padrão repetido em toda a imagem",
+    "identity_desc": "Visibilidade média para verificação de identidade",
+    "brand_desc": "Assinatura sutil do estúdio para obras de arte",
+    "draft_desc": "Marcador cinza claro para rascunhos"
+  }
+}

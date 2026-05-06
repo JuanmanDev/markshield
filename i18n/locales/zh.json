@@ -1,0 +1,88 @@
+{
+  "app": {
+    "title": "MarkShield 水印工作室",
+    "description": "为您的图片和文档添加可自定义的文字水印"
+  },
+  "upload": {
+    "title": "上传文件",
+    "dragDrop": "拖放图片或PDF文件到此处",
+    "or": "或",
+    "select": "选择文件",
+    "preview": "预览",
+    "previewImage": "预览图片",
+    "remove": "删除文件",
+    "paste": "从剪贴板粘贴",
+    "clipboardInfo": "直接从剪贴板粘贴文件"
+  },
+  "watermark": {
+    "title": "水印设置"
+  },
+  "config": {
+    "text": "文字",
+    "textPlaceholder": "输入水印文字",
+    "fontSize": "字体大小",
+    "rotation": "旋转",
+    "color": "颜色",
+    "textColor": "文字颜色",
+    "opacity": "不透明度",
+    "positionX": "X位置",
+    "positionY": "Y位置",
+    "apply": "添加到列表",
+    "gradientStart": "起始颜色",
+    "gradientEnd": "结束颜色",
+    "gradientAngle": "渐变角度",
+    "randomColorRange": "颜色范围",
+    "randomOpacity": "不透明度范围",
+    "background": "背景",
+    "backgroundColor": "颜色",
+    "backgroundOpacity": "不透明度",
+    "backgroundPadding": "内边距",
+    "backgroundRadius": "圆角半径",
+    "border": "边框",
+    "borderColor": "颜色",
+    "borderWidth": "宽度",
+    "borderOpacity": "不透明度",
+    "borderStyle": "样式",
+    "borderRadius": "圆角半径",
+    "repeat": "重复图案",
+    "patternSpacingX": "水平间距",
+    "patternSpacingY": "垂直间距",
+    "patternOffset": "行偏移",
+    "patternRandomOffset": "随机偏移"
+  },
+  "manager": {
+    "title": "水印管理器",
+    "edit": "编辑",
+    "remove": "删除",
+    "fontSize": "字体大小",
+    "color": "颜色",
+    "add": "添加水印",
+    "applyAll": "应用到全部",
+    "empty": "尚未添加水印"
+  },
+  "preview": {
+    "title": "预览",
+    "image": "图片",
+    "processing": "处理中...",
+    "dimensions": "尺寸",
+    "empty": "尚未上传文件",
+    "upload": "点击上传图片或PDF",
+    "zoomIn": "放大",
+    "zoomOut": "缩小",
+    "reset": "重置视图"
+  },
+  "actions": {
+    "apply": "应用水印",
+    "download": "下载",
+    "reset": "全部重置",
+    "getStarted": "开始使用",
+    "batchProcess": "批量处理"
+  },
+  "suggestions": {
+    "confidential_desc": "用于敏感文件的粗体红色水印",
+    "tiled_desc": "覆盖整个图片的重复图案",
+    "identity_desc": "用于身份验证的中等可见度",
+    "brand_desc": "艺术作品的精致工作室签名",
+    "draft_desc": "草稿用浅灰色标记"
+  }
+}

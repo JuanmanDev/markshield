@@ -1,5 +1,11 @@
 <template>
-  <div class="bg-background text-on-surface font-body h-screen w-screen overflow-hidden relative">
+  <div
+    class="bg-background text-on-surface font-body h-screen w-screen overflow-hidden relative"
+    @dragenter.prevent="handlePageDragEnter"
+    @dragover.prevent="handlePageDragOver"
+    @dragleave="handlePageDragLeave"
+    @drop.prevent="handlePageDrop"
+  >
     <!-- TopNavBar -->
     <header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-3 md:px-8 h-12 md:h-16 bg-[#060e20]/60 backdrop-blur-xl border-b border-white/5 shadow-[0_20px_50px_rgba(139,92,246,0.1)]">
       <NuxtLink to="/" class="flex items-center gap-2 md:gap-8 group">
@@ -29,17 +35,34 @@
           </button>
         </div>
 
-        <!-- Language Toggle (Always visible) -->
-        <button
-          class="p-1 md:p-2 hover:bg-white/5 rounded-lg transition-all text-slate-400 hover:text-primary"
-          @click="toggleLanguage"
-        >
-          <span class="material-symbols-outlined text-base md:text-lg">language</span>
-        </button>
+        <!-- Language Selector (Always visible) -->
+        <div class="relative flex items-center gap-1 text-slate-400 hover:text-primary transition-colors">
+          <span class="material-symbols-outlined text-base md:text-lg pointer-events-none">language</span>
+          <select
+            :value="locale"
+            class="appearance-none bg-transparent text-xs font-semibold uppercase tracking-widest cursor-pointer transition-colors focus:outline-none pr-1"
+            @change="setLocale($event.target.value)"
+          >
+            <option v-for="loc in locales" :key="loc.code" :value="loc.code" class="bg-slate-900 text-slate-200">
+              {{ loc.name }}
+            </option>
+          </select>
+        </div>
 
         <!-- Desktop Only Buttons -->
         <div class="hidden md:flex items-center gap-2">
           <button class="px-4 py-2 text-sm font-semibold text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded-lg transition-all" @click="resetAllAndClear">{{ t('actions.reset') }}</button>
+
+          <!-- Share Config Button -->
+          <button
+            @click="shareConfig"
+            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all active:scale-95 flex items-center gap-1.5"
+            :class="shareCopied ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'"
+            title="Copy shareable link with current watermark config"
+          >
+            <span class="material-symbols-outlined text-sm">{{ shareCopied ? 'check_circle' : 'share' }}</span>
+            {{ shareCopied ? 'Copied!' : 'Share' }}
+          </button>
           
           <!-- PDF Page Navigation (if PDF) -->
           <div v-if="currentPdfPages > 1" class="flex items-center gap-1 bg-white/5 rounded-lg px-2 py-1">
@@ -550,11 +573,37 @@
                 <span class="material-symbols-outlined text-sm">download</span>
                 Export {{ saveExportScope === 'all' ? 'All ' + selectedImages.length + ' Images' : (hasPdfFiles ? 'PDF' : 'Current Image') }}
               </button>
+
+              <!-- Share Config -->
+              <button
+                @click="shareConfig"
+                class="w-full py-3 rounded-lg border text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-2"
+                :class="shareCopied ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'border-white/10 text-slate-300 hover:bg-white/5'"
+              >
+                <span class="material-symbols-outlined text-sm">{{ shareCopied ? 'check_circle' : 'share' }}</span>
+                {{ shareCopied ? 'Link copied!' : 'Share watermark config' }}
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Page-wide drag-and-drop overlay -->
+    <Transition name="page-drop">
+      <div
+        v-if="isDragOver"
+        class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center pointer-events-none"
+      >
+        <div class="text-center select-none">
+          <div class="w-36 h-36 rounded-3xl border-4 border-dashed border-primary flex items-center justify-center mb-6 mx-auto" style="animation: pulse-border 1s ease-in-out infinite;">
+            <span class="material-symbols-outlined text-7xl text-primary">cloud_upload</span>
+          </div>
+          <p class="text-2xl font-black tracking-widest uppercase text-on-surface">Drop to upload</p>
+          <p class="text-sm text-on-surface-variant mt-2">Images & PDFs supported</p>
+        </div>
+      </div>
+    </Transition>
 
   </div>
 </template>
@@ -564,13 +613,61 @@ import { ref, watch, onMounted, computed, onBeforeUnmount } from 'vue'
 import { renderPresetText } from '../utils/presetTokens'
 import suggestionsData from '../data/presets.json'
 
-const { t, locale, setLocale } = useI18n()
-
-const toggleLanguage = () => {
-  setLocale(locale.value === 'en' ? 'es' : 'en')
-}
+const { t, locale, setLocale, locales } = useI18n()
 
 const uploaderRef = ref(null)
+const isDragOver = ref(false)
+let _dragCounter = 0
+
+const handlePageDragEnter = (e) => {
+  if (e.dataTransfer?.types?.includes('Files')) {
+    _dragCounter++
+    isDragOver.value = true
+  }
+}
+
+const handlePageDragOver = (e) => {
+  if (e.dataTransfer?.types?.includes('Files')) {
+    e.dataTransfer.dropEffect = 'copy'
+  }
+}
+
+const handlePageDragLeave = () => {
+  _dragCounter--
+  if (_dragCounter <= 0) {
+    _dragCounter = 0
+    isDragOver.value = false
+  }
+}
+
+const handlePageDrop = (e) => {
+  _dragCounter = 0
+  isDragOver.value = false
+  const files = Array.from(e.dataTransfer?.files ?? [])
+  if (files.length > 0) {
+    uploaderRef.value?.processFiles(files)
+  }
+}
+
+// Share config via URL
+const shareCopied = ref(false)
+
+const shareConfig = async () => {
+  const payload = {
+    wm: JSON.parse(JSON.stringify(currentWatermark)),
+    watermarks: JSON.parse(JSON.stringify(watermarks.value))
+  }
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))))
+  const url = `${window.location.origin}${window.location.pathname}#config=${encoded}`
+  try {
+    await navigator.clipboard.writeText(url)
+  } catch {
+    window.location.hash = `config=${encoded}`
+  }
+  shareCopied.value = true
+  setTimeout(() => { shareCopied.value = false }, 2500)
+}
+
 const activeTab = ref('files')
 const exportFormat = ref('png')
 const exportQuality = ref(90)
@@ -1427,6 +1524,23 @@ onMounted(() => {
   // Restore state (Android fix)
   restoreState()
 
+  // Apply shared config from URL hash (#config=<base64>)
+  const hash = window.location.hash
+  if (hash.startsWith('#config=')) {
+    try {
+      const encoded = hash.slice(8)
+      const payload = JSON.parse(decodeURIComponent(escape(atob(encoded))))
+      if (payload.wm) updateCurrentWatermark(payload.wm)
+      if (Array.isArray(payload.watermarks) && payload.watermarks.length) {
+        payload.watermarks.forEach(wm => watermarks.value.push(wm))
+      }
+      // Clean hash so refresh doesn't re-apply
+      history.replaceState(null, '', window.location.pathname)
+    } catch (e) {
+      console.warn('[MarkShield] Could not load shared config:', e)
+    }
+  }
+
   // Handle visibility change (Android background/foreground)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
@@ -1449,3 +1563,19 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 </script>
+
+<style scoped>
+.page-drop-enter-active,
+.page-drop-leave-active {
+  transition: opacity 0.15s ease;
+}
+.page-drop-enter-from,
+.page-drop-leave-to {
+  opacity: 0;
+}
+
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(139, 92, 246, 0); }
+}
+</style>

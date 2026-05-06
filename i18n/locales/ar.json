@@ -1,0 +1,88 @@
+{
+  "app": {
+    "title": "MarkShield استوديو العلامات المائية",
+    "description": "أضف علامات مائية نصية قابلة للتخصيص إلى صورك ومستنداتك"
+  },
+  "upload": {
+    "title": "رفع الملفات",
+    "dragDrop": "اسحب وأفلت الصور أو ملفات PDF هنا",
+    "or": "أو",
+    "select": "اختر الملفات",
+    "preview": "معاينة",
+    "previewImage": "معاينة الصورة",
+    "remove": "حذف الملف",
+    "paste": "لصق من الحافظة",
+    "clipboardInfo": "الصق الملفات مباشرة من الحافظة"
+  },
+  "watermark": {
+    "title": "إعدادات العلامة المائية"
+  },
+  "config": {
+    "text": "النص",
+    "textPlaceholder": "أدخل نص العلامة المائية",
+    "fontSize": "حجم الخط",
+    "rotation": "التدوير",
+    "color": "اللون",
+    "textColor": "لون النص",
+    "opacity": "الشفافية",
+    "positionX": "الموضع الأفقي",
+    "positionY": "الموضع الرأسي",
+    "apply": "أضف إلى القائمة",
+    "gradientStart": "لون البداية",
+    "gradientEnd": "لون النهاية",
+    "gradientAngle": "زاوية التدرج",
+    "randomColorRange": "نطاق اللون",
+    "randomOpacity": "نطاق الشفافية",
+    "background": "الخلفية",
+    "backgroundColor": "اللون",
+    "backgroundOpacity": "الشفافية",
+    "backgroundPadding": "الحشو",
+    "backgroundRadius": "نصف قطر الزاوية",
+    "border": "الحدود",
+    "borderColor": "اللون",
+    "borderWidth": "العرض",
+    "borderOpacity": "الشفافية",
+    "borderStyle": "النمط",
+    "borderRadius": "نصف قطر الزاوية",
+    "repeat": "نمط متكرر",
+    "patternSpacingX": "التباعد الأفقي",
+    "patternSpacingY": "التباعد الرأسي",
+    "patternOffset": "إزاحة السطر",
+    "patternRandomOffset": "إزاحة عشوائية"
+  },
+  "manager": {
+    "title": "مدير العلامات المائية",
+    "edit": "تعديل",
+    "remove": "حذف",
+    "fontSize": "حجم الخط",
+    "color": "اللون",
+    "add": "إضافة علامة مائية",
+    "applyAll": "تطبيق على الكل",
+    "empty": "لم تتم إضافة علامات مائية بعد"
+  },
+  "preview": {
+    "title": "معاينة",
+    "image": "الصورة",
+    "processing": "جارٍ المعالجة...",
+    "dimensions": "الأبعاد",
+    "empty": "لم يتم رفع أي ملفات بعد",
+    "upload": "انقر لرفع الصور أو ملفات PDF",
+    "zoomIn": "تكبير",
+    "zoomOut": "تصغير",
+    "reset": "إعادة تعيين العرض"
+  },
+  "actions": {
+    "apply": "تطبيق العلامات المائية",
+    "download": "تنزيل",
+    "reset": "إعادة تعيين الكل",
+    "getStarted": "ابدأ الآن",
+    "batchProcess": "معالجة دفعية"
+  },
+  "suggestions": {
+    "confidential_desc": "علامة مائية حمراء غامقة للمستندات الحساسة",
+    "tiled_desc": "نمط متكرر عبر الصورة بأكملها",
+    "identity_desc": "وضوح متوسط للتحقق من الهوية",
+    "brand_desc": "توقيع استوديو خفي للأعمال الفنية",
+    "draft_desc": "علامة رمادية فاتحة للمسودات"
+  }
+}

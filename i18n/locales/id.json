@@ -1,0 +1,88 @@
+{
+  "app": {
+    "title": "MarkShield Studio Tanda Air",
+    "description": "Tambahkan tanda air teks yang dapat dikustomisasi ke gambar dan dokumen Anda"
+  },
+  "upload": {
+    "title": "Unggah File",
+    "dragDrop": "Seret dan jatuhkan gambar atau PDF di sini",
+    "or": "atau",
+    "select": "Pilih File",
+    "preview": "Pratinjau",
+    "previewImage": "Pratinjau gambar",
+    "remove": "Hapus file",
+    "paste": "Tempel dari Clipboard",
+    "clipboardInfo": "Tempel file langsung dari clipboard Anda"
+  },
+  "watermark": {
+    "title": "Pengaturan Tanda Air"
+  },
+  "config": {
+    "text": "Teks",
+    "textPlaceholder": "Masukkan teks tanda air",
+    "fontSize": "Ukuran Font",
+    "rotation": "Rotasi",
+    "color": "Warna",
+    "textColor": "Warna Teks",
+    "opacity": "Opasitas",
+    "positionX": "Posisi X",
+    "positionY": "Posisi Y",
+    "apply": "Tambah ke Daftar",
+    "gradientStart": "Warna Awal",
+    "gradientEnd": "Warna Akhir",
+    "gradientAngle": "Sudut Gradien",
+    "randomColorRange": "Rentang Warna",
+    "randomOpacity": "Rentang Opasitas",
+    "background": "Latar Belakang",
+    "backgroundColor": "Warna",
+    "backgroundOpacity": "Opasitas",
+    "backgroundPadding": "Bantalan",
+    "backgroundRadius": "Radius Sudut",
+    "border": "Batas",
+    "borderColor": "Warna",
+    "borderWidth": "Lebar",
+    "borderOpacity": "Opasitas",
+    "borderStyle": "Gaya",
+    "borderRadius": "Radius Sudut",
+    "repeat": "Pola Berulang",
+    "patternSpacingX": "Jarak Horizontal",
+    "patternSpacingY": "Jarak Vertikal",
+    "patternOffset": "Offset Baris",
+    "patternRandomOffset": "Offset Acak"
+  },
+  "manager": {
+    "title": "Pengelola Tanda Air",
+    "edit": "Edit",
+    "remove": "Hapus",
+    "fontSize": "Ukuran Font",
+    "color": "Warna",
+    "add": "Tambah Tanda Air",
+    "applyAll": "Terapkan ke Semua",
+    "empty": "Belum ada tanda air yang ditambahkan"
+  },
+  "preview": {
+    "title": "Pratinjau",
+    "image": "Gambar",
+    "processing": "Memproses...",
+    "dimensions": "Dimensi",
+    "empty": "Belum ada file yang diunggah",
+    "upload": "Klik untuk mengunggah gambar atau PDF",
+    "zoomIn": "Perbesar",
+    "zoomOut": "Perkecil",
+    "reset": "Reset Tampilan"
+  },
+  "actions": {
+    "apply": "Terapkan Tanda Air",
+    "download": "Unduh",
+    "reset": "Reset Semua",
+    "getStarted": "Mulai",
+    "batchProcess": "Proses Batch"
+  },
+  "suggestions": {
+    "confidential_desc": "Tanda air merah tebal untuk dokumen sensitif",
+    "tiled_desc": "Pola berulang di seluruh gambar",
+    "identity_desc": "Visibilitas sedang untuk verifikasi identitas",
+    "brand_desc": "Tanda tangan studio yang halus untuk karya seni",
+    "draft_desc": "Penanda abu-abu terang untuk draf"
+  }
+}
