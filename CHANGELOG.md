@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/JuanmanDev/markshield/compare/v1.1.0...v1.2.0) (2026-05-10)
+
+### Features
+
+* improved after iamgens on main page ([3aa5814](https://github.com/JuanmanDev/markshield/commit/3aa5814e05b97e11b88369b41d1fec8706e7e2b7))
+
 ## [1.1.0](https://github.com/JuanmanDev/markshield/compare/v1.0.0...v1.1.0) (2026-05-06)
 
 ### Features
