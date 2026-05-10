@@ -131,7 +131,7 @@
             <!-- DNI 1 watermarked: hotel registration -->
             <div class="collage-c1 absolute" style="top:5%;left:16%;width:54%;z-index:3;">
               <div class="rounded-2xl overflow-hidden shadow-2xl border border-primary/30 relative">
-                <img src="/pictures/dni1.jpg" alt="DNI watermarked" class="w-full block" />
+                <img src="/pictures/dni1_mark.png" alt="DNI watermarked" class="w-full block" />
                 <div class="wm-band">
                   <template v-for="i in 40" :key="i">
                     <span>Only for hotel registration · May 2026 · Madrid &nbsp;&nbsp;</span>
@@ -142,7 +142,7 @@
             <!-- DNI 2 watermarked: rental contract -->
             <div class="collage-c2 absolute" style="bottom:12%;right:4%;width:48%;z-index:2;">
               <div class="rounded-2xl overflow-hidden shadow-2xl border border-primary/30 relative">
-                <img src="/pictures/dni2.jpg" alt="DNI watermarked" class="w-full block" />
+                <img src="/pictures/dni2_mark.png" alt="DNI watermarked" class="w-full block" />
                 <div class="wm-band">
                   <template v-for="i in 40" :key="i">
                     <span>Only for rental property contract &nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -153,7 +153,7 @@
             <!-- Pasaporte watermarked: certificate of birth -->
             <div class="collage-c3 absolute" style="bottom:4%;left:3%;width:52%;z-index:1;">
               <div class="rounded-2xl overflow-hidden shadow-2xl border border-primary/30 relative">
-                <img src="/pictures/pasporte.jpg" alt="Passport watermarked" class="w-full block" />
+                <img src="/pictures/pasporte_mark.png" alt="Passport watermarked" class="w-full block" />
                 <div class="wm-band">
                   <template v-for="i in 40" :key="i">
                     <span>Only for certificate of birth · Jun 2027 &nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -217,7 +217,7 @@
             <!-- wedding.avif watermarked -->
             <div class="wedding-c1 absolute" style="top:6%;left:10%;width:68%;z-index:3;">
               <div class="rounded-2xl overflow-hidden shadow-2xl border border-primary/30 relative">
-                <img src="/pictures/wedding.avif" alt="Wedding watermarked" class="w-full block" />
+                <img src="/pictures/watermarked-wedding-1.png" alt="Wedding watermarked" class="w-full block" />
                 <div class="wm-band wm-violet">
                   <template v-for="i in 40" :key="i">
                     <span>© Foto Estudio — Preview Only &nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -228,7 +228,7 @@
             <!-- wedding2 watermarked -->
             <div class="wedding-c2 absolute" style="top:3%;right:2%;width:44%;z-index:2;">
               <div class="rounded-2xl overflow-hidden shadow-2xl border border-primary/30 relative">
-                <img src="/pictures/wedding2.jpeg" alt="Wedding 2 watermarked" class="w-full block" />
+                <img src="/pictures/watermarked-wedding-2.png" alt="Wedding 2 watermarked" class="w-full block" />
                 <div class="wm-band wm-violet">
                   <template v-for="i in 40" :key="i">
                     <span>© Foto Estudio &nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -239,7 +239,7 @@
             <!-- wedding3 watermarked -->
             <div class="wedding-c3 absolute" style="bottom:10%;left:14%;width:66%;z-index:1;">
               <div class="rounded-2xl overflow-hidden shadow-2xl border border-primary/30 relative">
-                <img src="/pictures/wedding3.webp" alt="Wedding 3 watermarked" class="w-full block" />
+                <img src="/pictures/watermarked-wedding-3.png" alt="Wedding 3 watermarked" class="w-full block" />
                 <div class="wm-band wm-violet">
                   <template v-for="i in 40" :key="i">
                     <span>© Foto Estudio &nbsp;&nbsp;&nbsp;&nbsp;</span>
