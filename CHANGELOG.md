@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/JuanmanDev/markshield/compare/v1.0.0...v1.1.0) (2026-05-06)
+
+### Features
+
+* imporved main page ([7b958a6](https://github.com/JuanmanDev/markshield/commit/7b958a6f1a95781c2d0909729279fff8b096798f))
+
 ## 1.0.0 (2026-04-30)
 
 ### Features
